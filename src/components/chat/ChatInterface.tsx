@@ -26,6 +26,18 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
+  // Generate a session ID when the component is mounted
+  const [sessionId] = useState(() => {
+    const storedId = localStorage.getItem('chatSessionId');
+    if (storedId) return storedId;
+    
+    // Generate a random session ID if none exists
+    const newId = Math.random().toString(36).substring(2, 15) + 
+                 Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('chatSessionId', newId);
+    return newId;
+  });
+  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -49,7 +61,7 @@ export function ChatInterface() {
     setIsLoading(true);
     
     try {
-      const response = await N8nService.sendChatMessage(inputValue);
+      const response = await N8nService.sendChatMessage(inputValue, sessionId);
       
       if (response.success && response.data) {
         // In a real implementation, the structure would match the n8n response

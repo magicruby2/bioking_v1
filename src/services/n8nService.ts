@@ -91,8 +91,8 @@ export class N8nService {
   /**
    * Sends a chat message to the n8n webhook
    */
-  public static async sendChatMessage(message: string): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('chat', { message }, 'GET');
+  public static async sendChatMessage(message: string, sessionId: string): Promise<WebhookResponse> {
+    return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId }, 'GET');
   }
   
   /**
