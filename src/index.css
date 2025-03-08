@@ -99,6 +99,12 @@
     @apply max-w-7xl mx-auto px-4 sm:px-6 md:px-8;
   }
 
+  .container {
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
   .fade-mask-b {
     mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
   }
