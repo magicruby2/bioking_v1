@@ -42,18 +42,33 @@ export class N8nService {
    */
   private async sendWebhookRequest(
     type: WebhookType,
-    payload: any
+    payload: any,
+    method: 'GET' | 'POST' = 'POST'
   ): Promise<WebhookResponse> {
     try {
       console.log(`Sending ${type} webhook request:`, payload);
       
-      const response = await fetch(this.getWebhookUrl(type), {
-        method: 'POST',
+      let url = this.getWebhookUrl(type);
+      let options: RequestInit = {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
-      });
+      };
+      
+      // For GET requests, convert payload to query parameters
+      if (method === 'GET' && payload) {
+        const queryParams = new URLSearchParams();
+        Object.entries(payload).forEach(([key, value]) => {
+          queryParams.append(key, String(value));
+        });
+        url = `${url}?${queryParams.toString()}`;
+      } else {
+        // For POST requests, add the payload to the body
+        options.body = JSON.stringify(payload);
+      }
+      
+      const response = await fetch(url, options);
       
       const data = await response.json();
       console.log(`${type} webhook response:`, data);
@@ -77,7 +92,7 @@ export class N8nService {
    * Sends a chat message to the n8n webhook
    */
   public static async sendChatMessage(message: string): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('chat', { message });
+    return N8nService.getInstance().sendWebhookRequest('chat', { message }, 'GET');
   }
   
   /**
