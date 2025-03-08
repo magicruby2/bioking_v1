@@ -13,7 +13,10 @@ const ChatPage = () => {
   
   const handleNewChat = () => {
     console.log('Creating new chat...');
-    // Implementation for new chat would go here
+    // Clear session ID to start a new chat
+    localStorage.removeItem('chatSessionId');
+    // Reload the page to create a new session
+    window.location.reload();
   };
   
   return (

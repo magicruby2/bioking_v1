@@ -11,6 +11,13 @@ interface Message {
   timestamp: Date;
 }
 
+interface N8nChatResponse {
+  output?: string;
+  message?: string;
+  reply?: string;
+  [key: string]: any;
+}
+
 export function ChatInterface() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([
@@ -46,6 +53,24 @@ export function ChatInterface() {
     scrollToBottom();
   }, [messages]);
   
+  const extractResponseText = (data: any): string => {
+    // Check if the response follows the expected format with an array containing objects with 'output' field
+    if (Array.isArray(data) && data.length > 0 && data[0]?.output) {
+      return data[0].output;
+    }
+    
+    // Handle case where data is an N8nChatResponse object
+    const responseData = data as N8nChatResponse;
+    if (responseData.output) return responseData.output;
+    if (responseData.reply) return responseData.reply;
+    if (responseData.message && responseData.message !== "Workflow was started") {
+      return responseData.message;
+    }
+    
+    // Fallback response
+    return "I received your message, but I'm not sure how to respond to it. Please try again or ask something else.";
+  };
+  
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
     
@@ -63,11 +88,13 @@ export function ChatInterface() {
     try {
       const response = await N8nService.sendChatMessage(inputValue, sessionId);
       
-      if (response.success && response.data) {
-        // In a real implementation, the structure would match the n8n response
+      if (response.success) {
+        // Extract the text response from the data structure
+        const responseText = extractResponseText(response.data);
+        
         const assistantMessage: Message = {
           id: (Date.now() + 1).toString(),
-          content: response.data.reply || "I've received your message. Here's where the n8n workflow would process it and return a response.",
+          content: responseText,
           sender: 'assistant',
           timestamp: new Date()
         };
