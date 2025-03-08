@@ -71,6 +71,15 @@
     @apply border-border;
   }
 
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
+  body {
+    -ms-overflow-style: none;  /* IE and ¿§Áö */
+    scrollbar-width: none;  /* ÆÄÀÌ¾îÆø½º */
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
