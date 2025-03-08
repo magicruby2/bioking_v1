@@ -92,7 +92,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
           <span className="text-lg font-semibold">Chat History</span>
         </div>
         
-        <div className="px-4 md:px-6">
+        <div className="px-4 md:px-6 mt-4">
           <button
             onClick={onNewChat}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
@@ -102,7 +102,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
           </button>
         </div>
         
-        <div className="mt-4 flex items-center justify-between px-4 md:px-6">
+        <div className="mt-6 flex items-center justify-between px-4 md:px-6">
           <h2 className="text-sm font-medium text-muted-foreground">Folders</h2>
           <button
             onClick={() => setShowFolderInput(true)}
