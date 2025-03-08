@@ -7,7 +7,7 @@ interface WebhookResponse {
 
 export type WebhookType = 'chat' | 'stocks' | 'news';
 
-const N8N_BASE_URL = 'https://naldu.app.n8n.cloud/webhook-test';
+const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
 
 /**
  * Service for handling n8n webhook integrations
@@ -29,9 +29,9 @@ export class N8nService {
    */
   private getWebhookUrl(type: WebhookType): string {
     const endpoints = {
-      chat: 'a74ca145-c884-4c43-8794-7b70ed9e34fb',
-      stocks: '2', 
-      news: '3'
+      chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
+      stocks: 'webhook-test/2', 
+      news: 'webhook-test/3'
     };
     
     return `${N8N_BASE_URL}/${endpoints[type]}`;
