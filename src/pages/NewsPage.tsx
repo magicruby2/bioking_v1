@@ -11,11 +11,11 @@ const NewsPage = () => {
   };
   
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1">
-        <main className="h-full">
+      <div className="flex-1 overflow-hidden">
+        <main className="h-full overflow-hidden">
           <NewsAggregator />
         </main>
       </div>
