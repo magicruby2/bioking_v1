@@ -29,7 +29,7 @@ export class N8nService {
    */
   private getWebhookUrl(type: WebhookType): string {
     const endpoints = {
-      chat: '1',
+      chat: 'a74ca145-c884-4c43-8794-7b70ed9e34fb',
       stocks: '2', 
       news: '3'
     };
