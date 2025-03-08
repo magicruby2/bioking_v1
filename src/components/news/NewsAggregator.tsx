@@ -150,7 +150,7 @@ export function NewsAggregator() {
   };
   
   return (
-    <div className="h-full p-4 md:p-6 overflow-hidden">
+    <div className="h-full p-4 md:p-6 overflow-y-auto">
       <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl font-bold">News Feed</h1>
