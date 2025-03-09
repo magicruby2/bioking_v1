@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -158,7 +157,7 @@ export function ChatInterface() {
         setIsSessionInitialized(true);
         const chatMessages = updatedMessages.map(convertToChatMessage);
         
-        const sessionType = mode || 'chat';
+        const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
         
         const sessionToUpdate = {
           id: currentSessionId,
@@ -202,7 +201,7 @@ export function ChatInterface() {
         
         if (currentSessionId) {
           const chatMessages = finalMessages.map(convertToChatMessage);
-          const sessionType = mode || 'chat';
+          const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
           
           const sessionToUpdate = {
             id: currentSessionId,
@@ -243,7 +242,7 @@ export function ChatInterface() {
       
       if (currentSessionId && isSessionInitialized) {
         const chatMessages = finalMessages.map(convertToChatMessage);
-        const sessionType = mode || 'chat';
+        const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
         
         saveSession({
           id: currentSessionId,
