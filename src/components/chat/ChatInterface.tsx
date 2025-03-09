@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +12,7 @@ export function ChatInterface() {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSessionInitialized, setIsSessionInitialized] = useState(false);
   
   const { 
     currentSessionId, 
@@ -28,6 +30,7 @@ export function ChatInterface() {
       if (currentSession.messages && currentSession.messages.length > 0) {
         console.log("Loading messages from session:", currentSession.messages);
         setMessages(currentSession.messages);
+        setIsSessionInitialized(true);
       } else {
         setMessages([{
           id: '1',
@@ -35,6 +38,7 @@ export function ChatInterface() {
           sender: 'assistant',
           timestamp: new Date()
         }]);
+        setIsSessionInitialized(false);
       }
     } else {
       console.log("Session not found:", currentSessionId);
@@ -86,7 +90,9 @@ export function ChatInterface() {
     }]);
     
     try {
-      if (messages.length <= 1 && currentSessionId) {
+      // Initialize the session with the first user message
+      if (!isSessionInitialized && currentSessionId) {
+        setIsSessionInitialized(true);
         updateSession(currentSessionId, {
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
@@ -142,7 +148,7 @@ export function ChatInterface() {
       const updatedMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
       setMessages(updatedMessages);
       
-      if (currentSessionId) {
+      if (currentSessionId && isSessionInitialized) {
         updateSession(currentSessionId, {
           preview: fallbackMessage.content,
           timestamp: new Date(),

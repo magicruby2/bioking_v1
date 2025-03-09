@@ -43,14 +43,16 @@ const PostgresService = {
       try {
         const parsedSessions = JSON.parse(savedSessions);
         // Convert string timestamps back to Date objects
-        return parsedSessions.map((session: any) => ({
-          ...session,
-          timestamp: new Date(session.timestamp),
-          messages: session.messages ? session.messages.map((msg: any) => ({
-            ...msg,
-            timestamp: new Date(msg.timestamp)
-          })) : []
-        }));
+        return parsedSessions
+          .filter((session: any) => session.messages && session.messages.length > 1) // Only return sessions with user messages
+          .map((session: any) => ({
+            ...session,
+            timestamp: new Date(session.timestamp),
+            messages: session.messages ? session.messages.map((msg: any) => ({
+              ...msg,
+              timestamp: new Date(msg.timestamp)
+            })) : []
+          }));
       } catch (error) {
         console.error('Error parsing saved chat sessions:', error);
         return [];
@@ -62,40 +64,76 @@ const PostgresService = {
   // Simulate adding a session to PostgreSQL
   addSession: async (session: ChatSession): Promise<void> => {
     console.log('Simulating PostgreSQL insert...', session);
-    // In a real implementation, this would be a database insert
-    // For now, we'll also save to localStorage for persistence
-    const savedSessions = localStorage.getItem('chatSessions');
-    let sessions = [];
-    
-    if (savedSessions) {
-      try {
-        sessions = JSON.parse(savedSessions);
-      } catch (error) {
-        console.error('Error parsing saved chat sessions:', error);
+    // For temporary sessions, we don't need to save them until they have a user message
+    // We'll keep them in memory only
+    if (session.messages && session.messages.length > 1) {
+      // Only save if there's more than the initial greeting message
+      const savedSessions = localStorage.getItem('chatSessions');
+      let sessions = [];
+      
+      if (savedSessions) {
+        try {
+          sessions = JSON.parse(savedSessions);
+        } catch (error) {
+          console.error('Error parsing saved chat sessions:', error);
+        }
       }
+      
+      localStorage.setItem('chatSessions', JSON.stringify([session, ...sessions]));
     }
-    
-    localStorage.setItem('chatSessions', JSON.stringify([session, ...sessions]));
   },
 
   // Simulate updating a session in PostgreSQL
   updateSession: async (sessionId: string, updates: Partial<ChatSession>): Promise<void> => {
     console.log('Simulating PostgreSQL update...', { sessionId, updates });
-    // In a real implementation, this would be a database update
-    // For now, we'll also update localStorage for persistence
+    
+    // Only save sessions with user messages
+    if (!updates.messages || updates.messages.length <= 1) {
+      return; // Don't persist sessions without user messages
+    }
+    
     const savedSessions = localStorage.getItem('chatSessions');
     
     if (savedSessions) {
       try {
         const sessions = JSON.parse(savedSessions);
-        const updatedSessions = sessions.map((session: any) =>
-          session.id === sessionId
-            ? { ...session, ...updates, timestamp: new Date() }
-            : session
-        );
-        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+        const sessionExists = sessions.some((s: any) => s.id === sessionId);
+        
+        if (sessionExists) {
+          // Update existing session
+          const updatedSessions = sessions.map((session: any) =>
+            session.id === sessionId
+              ? { ...session, ...updates, timestamp: new Date() }
+              : session
+          );
+          localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+        } else {
+          // Add as new session
+          const newSession = {
+            id: sessionId,
+            title: updates.title || "New Conversation",
+            preview: updates.preview || "",
+            timestamp: new Date(),
+            folderId: updates.folderId,
+            messages: updates.messages || []
+          };
+          localStorage.setItem('chatSessions', JSON.stringify([newSession, ...sessions]));
+        }
       } catch (error) {
         console.error('Error updating chat session:', error);
+      }
+    } else {
+      // No existing sessions, create a new array with this session
+      if (updates.messages && updates.messages.length > 1) {
+        const newSession = {
+          id: sessionId,
+          title: updates.title || "New Conversation",
+          preview: updates.preview || "",
+          timestamp: new Date(),
+          folderId: updates.folderId,
+          messages: updates.messages
+        };
+        localStorage.setItem('chatSessions', JSON.stringify([newSession]));
       }
     }
   },
@@ -154,9 +192,14 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         messages: session.messages || []
       };
       
-      await PostgresService.addSession(sessionWithMessages);
+      // Don't persist to storage yet, just keep in memory
       setSessions(prev => [sessionWithMessages, ...prev]);
       setCurrentSessionId(session.id);
+      
+      // Only persist if it has user messages (handled by PostgresService)
+      if (sessionWithMessages.messages && sessionWithMessages.messages.length > 1) {
+        await PostgresService.addSession(sessionWithMessages);
+      }
     } catch (error) {
       console.error('Error adding session:', error);
     }
@@ -164,7 +207,7 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const updateSession = async (sessionId: string, updates: Partial<ChatSession>) => {
     try {
-      await PostgresService.updateSession(sessionId, updates);
+      // Update in memory first
       setSessions(prev => 
         prev.map(session => 
           session.id === sessionId 
@@ -172,6 +215,9 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
             : session
         )
       );
+      
+      // Persist to storage (handled by PostgresService)
+      await PostgresService.updateSession(sessionId, updates);
     } catch (error) {
       console.error('Error updating session:', error);
     }
