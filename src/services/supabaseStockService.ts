@@ -1,21 +1,10 @@
+
 import { createClient } from '@supabase/supabase-js';
 
 // Initialize the Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-// Create a client with fallback mechanism if keys are missing
-const supabase = createClient(
-  supabaseUrl,
-  supabaseKey,
-  { 
-    auth: { 
-      persistSession: true
-    }
-  }
-);
-
-console.log('Supabase initialized with URL:', supabaseUrl ? 'URL provided' : 'URL missing');
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface Stock {
   id: string;
@@ -28,7 +17,6 @@ export interface Stock {
 
 export const fetchStocks = async (): Promise<Stock[]> => {
   try {
-    console.log('Attempting to fetch stocks from Supabase...');
     const { data, error } = await supabase
       .from('bio_stock')
       .select('*')
@@ -39,12 +27,10 @@ export const fetchStocks = async (): Promise<Stock[]> => {
       throw new Error(error.message);
     }
     
-    console.log('Successfully fetched stocks:', data?.length || 0);
-    return data as Stock[] || [];
+    return data as Stock[];
   } catch (error) {
     console.error('Failed to fetch stocks:', error);
-    // Return empty array instead of throwing to prevent app crash
-    return [];
+    throw error;
   }
 };
 

@@ -6,8 +6,8 @@ const Index = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
-    // Redirect to the stocks page instead of chat page
-    navigate('/stocks');
+    // Redirect to the chat page
+    navigate('/chat');
   }, [navigate]);
   
   return null;
