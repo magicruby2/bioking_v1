@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import StockHeader from '@/components/stocks/StockHeader';
@@ -46,7 +47,6 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
   const [priceDiff, setPriceDiff] = useState('2.50');
   const [percentDiff, setPercentDiff] = useState('1.67');
   const [isPositive, setIsPositive] = useState(true);
-  const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(true);
   
   useEffect(() => {
@@ -55,11 +55,6 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
       setLoading(false);
     }, 500);
   }, []);
-  
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStockSymbol(searchInput.toUpperCase());
-  };
   
   return (
     <div className="container py-8">
@@ -78,9 +73,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
           priceDiff={priceDiff}
           percentDiff={percentDiff}
           isPositive={isPositive}
-          searchInput={searchInput}
-          setSearchInput={setSearchInput}
-          handleSearch={handleSearch}
+          hideSearch={true}
         />
       )}
       
