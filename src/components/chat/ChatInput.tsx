@@ -42,31 +42,21 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     if (currentSessionId) {
       const currentSession = sessions.find(session => session.id === currentSessionId);
       
-      // If there are messages in the session and trying to change modes
+      // If there are messages in the session and trying to change or unselect the mode
       if (currentSession && currentSession.messages.length > 1) {
-        // Specifically block changing from Report mode to other modes
-        if (selectedMode === 'report' && (mode !== 'report' || mode === 'report')) {
-          toast({
-            title: "Cannot Change from Report Mode",
-            description: "This chat is in Report mode and already has messages. Please create a new chat session to use a different mode.",
-            variant: "destructive",
-            duration: 5000, // Show for 5 seconds
-          });
+        // When trying to change from report to no mode, or from any mode to another mode
+        if ((selectedMode === 'report' && mode === 'report') || 
+            (selectedMode === 'research' && mode === 'research') ||
+            (selectedMode !== mode)) {
           
-          console.log(`Attempted to change from Report mode to ${mode === 'report' ? 'standard' : mode} mode`);
-          return;
-        }
-        
-        // Block any other mode changes in existing chats with messages
-        if (selectedMode !== mode) {
           toast({
             title: "Cannot Change Chat Mode",
-            description: "This chat already has messages. Please create a new chat session to change the current mode.",
+            description: "This chat already has messages. Please create a new chat session to change or disable the current mode.",
             variant: "destructive",
             duration: 5000, // Show for 5 seconds
           });
           
-          console.log(`Attempted to change from ${selectedMode} mode to ${mode} mode`);
+          console.log(`Attempted to change from ${selectedMode} mode to ${mode === selectedMode ? 'standard' : mode} mode`);
           return;
         }
       }
