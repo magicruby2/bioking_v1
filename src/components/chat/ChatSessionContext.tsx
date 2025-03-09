@@ -1,26 +1,31 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Message, ChatHistory } from './types';
+import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
 
-export interface ChatSession {
+export type ChatMessage = {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+};
+
+export type ChatSession = {
   id: string;
   title: string;
+  messages: ChatMessage[];
+  createdAt: string;
   preview: string;
-  timestamp: Date;
-  folderId?: string;
-  messages?: Message[];
-}
+  folderId?: string | null;
+};
 
-interface ChatSessionContextType {
+type ChatSessionContextType = {
   sessions: ChatSession[];
   currentSessionId: string | null;
+  setCurrentSessionId: (sessionId: string | null) => void;
   addSession: (session: ChatSession) => void;
-  updateSession: (sessionId: string, updates: Partial<ChatSession>) => void;
+  saveSession: (session: ChatSession) => void;
   deleteSession: (sessionId: string) => void;
-  setCurrentSessionId: (id: string | null) => void;
-  clearAllSessions: () => void;
+  clearAllSessions: () => Promise<void>;
   fetchSessions: () => Promise<void>;
   isLoading: boolean;
-}
+};
 
 const ChatSessionContext = createContext<ChatSessionContextType | undefined>(undefined);
 
@@ -32,117 +37,7 @@ export const useChatSessions = () => {
   return context;
 };
 
-// Simulated PostgreSQL service
-const PostgresService = {
-  fetchSessions: async (): Promise<ChatSession[]> => {
-    console.log('Simulating PostgreSQL fetch...');
-    const savedSessions = localStorage.getItem('chatSessions');
-    if (savedSessions) {
-      try {
-        const parsedSessions = JSON.parse(savedSessions);
-        return parsedSessions
-          .filter((session: any) => session.messages && session.messages.length > 1)
-          .map((session: any) => ({
-            ...session,
-            timestamp: new Date(session.timestamp),
-            messages: session.messages ? session.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp)
-            })) : []
-          }));
-      } catch (error) {
-        console.error('Error parsing saved chat sessions:', error);
-        return [];
-      }
-    }
-    return [];
-  },
-
-  addSession: async (session: ChatSession): Promise<void> => {
-    console.log('Simulating PostgreSQL insert...', session);
-    const savedSessions = localStorage.getItem('chatSessions');
-    let sessions = [];
-    
-    if (savedSessions) {
-      try {
-        sessions = JSON.parse(savedSessions);
-      } catch (error) {
-        console.error('Error parsing saved chat sessions:', error);
-      }
-    }
-    
-    localStorage.setItem('chatSessions', JSON.stringify([session, ...sessions]));
-  },
-
-  updateSession: async (sessionId: string, updates: Partial<ChatSession>): Promise<void> => {
-    console.log('Simulating PostgreSQL update...', { sessionId, updates });
-    
-    const savedSessions = localStorage.getItem('chatSessions');
-    let sessions = [];
-    
-    if (savedSessions) {
-      try {
-        sessions = JSON.parse(savedSessions);
-        const sessionExists = sessions.some((s: any) => s.id === sessionId);
-        
-        if (sessionExists) {
-          const updatedSessions = sessions.map((session: any) =>
-            session.id === sessionId
-              ? { ...session, ...updates, timestamp: new Date() }
-              : session
-          );
-          localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-        } else {
-          const newSession = {
-            id: sessionId,
-            title: updates.title || "New Conversation",
-            preview: updates.preview || "",
-            timestamp: new Date(),
-            folderId: updates.folderId,
-            messages: updates.messages || []
-          };
-          localStorage.setItem('chatSessions', JSON.stringify([newSession, ...sessions]));
-        }
-      } catch (error) {
-        console.error('Error updating chat session:', error);
-      }
-    } else {
-      const newSession = {
-        id: sessionId,
-        title: updates.title || "New Conversation",
-        preview: updates.preview || "",
-        timestamp: new Date(),
-        folderId: updates.folderId,
-        messages: updates.messages || []
-      };
-      localStorage.setItem('chatSessions', JSON.stringify([newSession]));
-    }
-  },
-
-  deleteSession: async (sessionId: string): Promise<void> => {
-    console.log('Simulating PostgreSQL delete...', sessionId);
-    
-    const savedSessions = localStorage.getItem('chatSessions');
-    
-    if (savedSessions) {
-      try {
-        const sessions = JSON.parse(savedSessions);
-        const updatedSessions = sessions.filter((session: any) => session.id !== sessionId);
-        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-      } catch (error) {
-        console.error('Error deleting chat session:', error);
-      }
-    }
-  },
-
-  clearAllSessions: async (): Promise<void> => {
-    console.log('Simulating PostgreSQL delete all...');
-    localStorage.removeItem('chatSessions');
-    localStorage.removeItem('chatSessionId');
-  }
-};
-
-export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const ChatSessionProvider = ({ children }: { children: React.ReactNode }) => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -150,25 +45,16 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   const fetchSessions = async () => {
     setIsLoading(true);
     try {
-      const savedSessions = localStorage.getItem('chatSessions');
-      if (savedSessions) {
-        try {
-          const parsedSessions = JSON.parse(savedSessions);
-          const sessions = parsedSessions.map((session: any) => ({
-            ...session,
-            timestamp: new Date(session.timestamp),
-            messages: session.messages ? session.messages.map((msg: any) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp)
-            })) : []
-          }));
-          setSessions(sessions);
-        } catch (error) {
-          console.error('Error parsing saved chat sessions:', error);
-          setSessions([]);
-        }
-      } else {
-        setSessions([]);
+      const storedSessions = localStorage.getItem('chatSessions');
+      if (storedSessions) {
+        const parsedSessions = JSON.parse(storedSessions) as ChatSession[];
+        
+        // Only show sessions that have at least one user message
+        const sessionsWithUserMessages = parsedSessions.filter(session => 
+          session.messages.some(msg => msg.role === 'user')
+        );
+        
+        setSessions(sessionsWithUserMessages);
       }
     } catch (error) {
       console.error('Error fetching chat sessions:', error);
@@ -178,93 +64,68 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
   };
 
   useEffect(() => {
-    const savedCurrentId = localStorage.getItem('chatSessionId');
-    if (savedCurrentId) {
-      setCurrentSessionId(savedCurrentId);
-    }
-    
     fetchSessions();
   }, []);
 
-  useEffect(() => {
-    if (currentSessionId) {
-      localStorage.setItem('chatSessionId', currentSessionId);
-    }
-  }, [currentSessionId]);
-
-  const addSession = async (session: ChatSession) => {
-    try {
-      const sessionWithMessages = {
-        ...session,
-        messages: session.messages || []
-      };
-      
-      setSessions(prev => [sessionWithMessages, ...prev]);
-      setCurrentSessionId(session.id);
-      
-      await PostgresService.addSession(sessionWithMessages);
-    } catch (error) {
-      console.error('Error adding session:', error);
-    }
+  const addSession = (session: ChatSession) => {
+    setSessions(prevSessions => [...prevSessions, session]);
   };
 
-  const updateSession = async (sessionId: string, updates: Partial<ChatSession>) => {
-    try {
-      setSessions(prev => 
-        prev.map(session => 
-          session.id === sessionId 
-            ? { ...session, ...updates, timestamp: new Date() } 
-            : session
-        )
+  const saveSession = useCallback((session: ChatSession) => {
+    setSessions(prevSessions => {
+      // Check if the session has at least one user message
+      const hasUserMessage = session.messages.some(msg => msg.role === 'user');
+      
+      // Update or add the session
+      const updatedSessions = prevSessions.map(s => 
+        s.id === session.id ? session : s
       );
       
-      await PostgresService.updateSession(sessionId, updates);
-    } catch (error) {
-      console.error('Error updating session:', error);
-    }
-  };
-
-  const deleteSession = async (sessionId: string) => {
-    try {
-      setSessions(prev => prev.filter(session => session.id !== sessionId));
-      
-      if (currentSessionId === sessionId) {
-        setCurrentSessionId(null);
+      // If the session wasn't found and it has user messages, add it
+      if (!updatedSessions.includes(session) && hasUserMessage) {
+        updatedSessions.push(session);
+      } else if (!updatedSessions.includes(session) && !hasUserMessage) {
+        // If it doesn't have user messages yet, don't add it to the displayed sessions
+        // but still save it in localStorage for persistence
+        const allStoredSessions = [...prevSessions, session];
+        localStorage.setItem('chatSessions', JSON.stringify(allStoredSessions));
+        return prevSessions; // Return unchanged visible sessions
       }
       
-      await PostgresService.deleteSession(sessionId);
-    } catch (error) {
-      console.error('Error deleting session:', error);
-    }
+      // Save all sessions to localStorage
+      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      return updatedSessions;
+    });
+  }, []);
+
+  const deleteSession = (sessionId: string) => {
+    setSessions(prevSessions => {
+      const updatedSessions = prevSessions.filter(session => session.id !== sessionId);
+      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      return updatedSessions;
+    });
   };
 
   const clearAllSessions = async () => {
-    try {
-      setIsLoading(true);
-      await PostgresService.clearAllSessions();
-      setSessions([]);
-      setCurrentSessionId(null);
-    } catch (error) {
-      console.error('Error clearing sessions:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    localStorage.removeItem('chatSessions');
+    setSessions([]);
+    setCurrentSessionId(null);
+  };
+
+  const contextValue: ChatSessionContextType = {
+    sessions,
+    currentSessionId,
+    setCurrentSessionId,
+    addSession,
+    saveSession,
+    deleteSession,
+    clearAllSessions,
+    fetchSessions,
+    isLoading,
   };
 
   return (
-    <ChatSessionContext.Provider 
-      value={{ 
-        sessions, 
-        currentSessionId, 
-        addSession, 
-        updateSession,
-        deleteSession,
-        setCurrentSessionId,
-        clearAllSessions,
-        fetchSessions,
-        isLoading
-      }}
-    >
+    <ChatSessionContext.Provider value={contextValue}>
       {children}
     </ChatSessionContext.Provider>
   );

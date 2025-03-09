@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -183,6 +182,11 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
             <div className="flex flex-col items-center justify-center py-8">
               <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
               <p className="mt-2 text-sm text-muted-foreground">Loading sessions...</p>
+            </div>
+          ) : chats.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <p className="text-sm text-muted-foreground">No chat history yet.</p>
+              <p className="text-sm text-muted-foreground">Start a chat and send a message to see it here.</p>
             </div>
           ) : (
             <>
