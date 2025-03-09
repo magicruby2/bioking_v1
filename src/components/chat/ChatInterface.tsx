@@ -48,7 +48,7 @@ export function ChatInterface() {
   useEffect(() => {
     if (messages.length > 0) return;
     
-    const initialMessage = {
+    const initialMessage: Message = {
       id: '1',
       content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
       sender: 'assistant',
