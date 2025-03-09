@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2, X } from 'lucide-react';
+
+import { useState, useEffect } from 'react';
+import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2, X, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
@@ -9,6 +10,7 @@ interface ChatFolder {
   id: string;
   name: string;
   expanded: boolean;
+  isSystem?: boolean;
 }
 
 interface SidebarProps {
@@ -30,9 +32,10 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   const { toast } = useToast();
   
   const [folders, setFolders] = useState<ChatFolder[]>([
+    { id: 'reports', name: 'Reports', expanded: true, isSystem: true },
     { id: 'f1', name: 'Work Related', expanded: true },
     { id: 'f2', name: 'Personal Projects', expanded: false },
-    { id: 'uncategorized', name: 'Uncategorized', expanded: true },
+    { id: 'uncategorized', name: 'Uncategorized', expanded: true, isSystem: true },
   ]);
   
   const toggleFolder = (folderId: string) => {
@@ -49,7 +52,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   const handleCreateFolder = () => {
     if (newFolderName.trim()) {
       const newFolder: ChatFolder = {
-        id: `f${folders.length + 1}`,
+        id: `f${Date.now()}`,
         name: newFolderName,
         expanded: true
       };
@@ -101,6 +104,46 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
       });
     }
   };
+  
+  // Load folders from localStorage on mount
+  useEffect(() => {
+    const savedFolders = localStorage.getItem('chatFolders');
+    if (savedFolders) {
+      try {
+        const parsedFolders = JSON.parse(savedFolders) as ChatFolder[];
+        // Ensure system folders exist
+        const systemFolderIds = ['reports', 'uncategorized'];
+        const hasAllSystemFolders = systemFolderIds.every(id => 
+          parsedFolders.some(folder => folder.id === id)
+        );
+        
+        if (hasAllSystemFolders) {
+          setFolders(parsedFolders);
+        } else {
+          // Add missing system folders
+          const updatedFolders = [...parsedFolders];
+          
+          if (!updatedFolders.some(f => f.id === 'reports')) {
+            updatedFolders.unshift({ id: 'reports', name: 'Reports', expanded: true, isSystem: true });
+          }
+          
+          if (!updatedFolders.some(f => f.id === 'uncategorized')) {
+            updatedFolders.push({ id: 'uncategorized', name: 'Uncategorized', expanded: true, isSystem: true });
+          }
+          
+          setFolders(updatedFolders);
+          localStorage.setItem('chatFolders', JSON.stringify(updatedFolders));
+        }
+      } catch (e) {
+        console.error('Failed to parse saved folders:', e);
+      }
+    }
+  }, []);
+  
+  // Save folders to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('chatFolders', JSON.stringify(folders));
+  }, [folders]);
   
   return (
     <aside className={cn(
@@ -197,7 +240,11 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                     className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     <div className="flex items-center gap-2">
-                      <Folder className="h-4 w-4" />
+                      {folder.id === 'reports' ? (
+                        <FileText className="h-4 w-4" />
+                      ) : (
+                        <Folder className="h-4 w-4" />
+                      )}
                       <span className="truncate">{folder.name}</span>
                     </div>
                     <span className="text-xs">{folder.expanded ? '▾' : '▸'}</span>
@@ -206,7 +253,13 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                   {folder.expanded && (
                     <div className="ml-4 mt-1 flex flex-col gap-1">
                       {chats
-                        .filter(chat => folder.id === 'uncategorized' ? !chat.folderId : chat.folderId === folder.id)
+                        .filter(chat => 
+                          folder.id === 'reports' 
+                            ? chat.folderId === 'reports' || chat.type === 'report'
+                            : folder.id === 'uncategorized' 
+                              ? !chat.folderId && chat.type !== 'report'
+                              : chat.folderId === folder.id
+                        )
                         .map(chat => (
                           <div 
                             key={chat.id}
@@ -220,7 +273,11 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                               onClick={() => handleChatSelect(chat.id)}
                               className="flex items-start gap-2 w-full overflow-hidden"
                             >
-                              <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              {chat.type === 'report' || folder.id === 'reports' ? (
+                                <FileText className="mt-0.5 h-4 w-4 shrink-0" />
+                              ) : (
+                                <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              )}
                               <div className="flex flex-col items-start w-full overflow-hidden">
                                 <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
                                 <span className="truncate w-full text-xs text-left">{chat.preview}</span>

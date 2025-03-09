@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -161,10 +162,20 @@ export function ChatInterface() {
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
           createdAt: new Date().toISOString(),
-          messages: chatMessages
+          messages: chatMessages,
+          type: mode || 'chat', // Set the session type based on the mode
+          folderId: mode === 'report' ? 'reports' : null // Assign reports to the Reports folder
         };
         saveSession(sessionToUpdate);
         await fetchSessions();
+      } else if (currentSessionId) {
+        // If this is the first report message for this session, update the type
+        if (mode === 'report') {
+          updateSession(currentSessionId, {
+            type: 'report',
+            folderId: 'reports'
+          });
+        }
       }
       
       console.log(`Sending ${mode || 'regular'} message with session ID:`, currentSessionId);
@@ -200,7 +211,9 @@ export function ChatInterface() {
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
             createdAt: new Date().toISOString(),
-            messages: chatMessages
+            messages: chatMessages,
+            type: mode || 'chat', // Update the session type
+            folderId: mode === 'report' ? 'reports' : undefined // Don't override existing folderId unless it's a report
           };
           saveSession(sessionToUpdate);
           await fetchSessions();
