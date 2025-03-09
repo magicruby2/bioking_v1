@@ -2,7 +2,7 @@
 import { Calendar } from 'lucide-react';
 import { 
   ComposedChart, 
-  Line,
+  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
@@ -82,7 +82,7 @@ export function PriceChart({ stockData }: PriceChartProps) {
         </div>
       </div>
       
-      <div className="h-[500px]">
+      <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={candlestickData}
@@ -90,14 +90,7 @@ export function PriceChart({ stockData }: PriceChartProps) {
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
             <XAxis dataKey="date" />
-            
-            {/* YAxis for price */}
-            <YAxis 
-              domain={['auto', 'auto']} 
-              orientation="right"
-              label={{ value: 'Price ($)', angle: -90, position: 'insideRight' }}
-            />
-            
+            <YAxis domain={['auto', 'auto']} />
             <Tooltip 
               contentStyle={{ 
                 backgroundColor: 'hsl(var(--card))',
