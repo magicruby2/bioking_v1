@@ -23,26 +23,20 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   
   const { toast } = useToast();
   
-  // Define fixed folders - Chat and Reports only
-  const folders = [
+  // Define folders with state to track expansion
+  const [folders, setFolders] = useState([
     { id: 'chat', name: 'Chat', expanded: true },
     { id: 'reports', name: 'Reports', expanded: true },
-  ];
+  ]);
   
   const toggleFolder = (folderId: string) => {
-    // Find folder index
-    const folderIndex = folders.findIndex(folder => folder.id === folderId);
-    
-    if (folderIndex !== -1) {
-      // Create a copy of the folders array
-      const updatedFolders = [...folders];
-      
-      // Toggle the expanded property of the found folder
-      updatedFolders[folderIndex] = {
-        ...updatedFolders[folderIndex],
-        expanded: !updatedFolders[folderIndex].expanded
-      };
-    }
+    setFolders(prevFolders => 
+      prevFolders.map(folder => 
+        folder.id === folderId 
+          ? { ...folder, expanded: !folder.expanded } 
+          : folder
+      )
+    );
   };
 
   const handleChatSelect = (chatId: string) => {
