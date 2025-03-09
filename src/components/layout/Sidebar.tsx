@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -193,7 +192,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                           <button
                             key={chat.id}
                             onClick={() => handleChatSelect(chat.id)}
-                            className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                            className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left ${
                               currentSessionId === chat.id 
                                 ? 'bg-secondary text-foreground' 
                                 : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
@@ -223,7 +222,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                       <button
                         key={chat.id}
                         onClick={() => handleChatSelect(chat.id)}
-                        className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm ${
+                        className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-left ${
                           currentSessionId === chat.id 
                             ? 'bg-secondary text-foreground' 
                             : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
@@ -231,7 +230,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                       >
                         <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
                         <div className="flex flex-col items-start w-full overflow-hidden">
-                          <span className="font-medium text-foreground truncate w-full">{chat.title}</span>
+                          <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
                           <span className="truncate w-full text-xs text-left">{chat.preview}</span>
                         </div>
                       </button>
