@@ -1,18 +1,68 @@
 
 import { Calendar } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface StockData {
-  date: string;
-  price: number;
-  volume: number;
-}
+import { 
+  ComposedChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  ReferenceLine
+} from 'recharts';
+import type { StockData } from './dummyData';
 
 interface PriceChartProps {
   stockData: StockData[];
 }
 
+// Custom renderer for candlestick
+const renderCandlestick = (
+  { x, y, width, height, open, close, low, high }: any
+) => {
+  const isPositive = close >= open;
+  const color = isPositive ? "hsl(var(--success))" : "hsl(var(--destructive))";
+  const barWidth = width * 0.8;
+  const barX = x - (barWidth / 2);
+  const wickX = x;
+  
+  return (
+    <g key={x + y}>
+      {/* Wick line (high to low) */}
+      <line
+        x1={wickX}
+        y1={y + height - (height * (high - open) / (high - low))}
+        x2={wickX}
+        y2={y + height - (height * (low - open) / (high - low))}
+        stroke={color}
+        strokeWidth={1}
+      />
+      {/* Body rectangle (open to close) */}
+      <rect
+        x={barX}
+        y={isPositive 
+          ? y + height - (height * (close - open) / (high - low)) 
+          : y + height - (height * (open - open) / (high - low))}
+        width={barWidth}
+        height={Math.abs(
+          (height * (close - open) / (high - low))
+        )}
+        fill={color}
+        stroke={color}
+      />
+    </g>
+  );
+};
+
 export function PriceChart({ stockData }: PriceChartProps) {
+  // Calculate the data for candlestick display
+  const candlestickData = stockData.map(item => ({
+    ...item,
+    // These props are needed for custom candlestick rendering
+    highLowDiff: item.high - item.low,
+    openCloseDiff: Math.abs(item.open - item.close),
+  }));
+
   return (
     <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
@@ -25,16 +75,10 @@ export function PriceChart({ stockData }: PriceChartProps) {
       
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={stockData}
+          <ComposedChart
+            data={candlestickData}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
           >
-            <defs>
-              <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
             <XAxis dataKey="date" />
             <YAxis domain={['auto', 'auto']} />
@@ -44,16 +88,24 @@ export function PriceChart({ stockData }: PriceChartProps) {
                 borderColor: 'hsl(var(--border))',
                 borderRadius: '0.5rem',
               }}
+              formatter={(value, name) => {
+                // Format tooltip values
+                if (name === 'open') return ['Open: $' + value.toFixed(2)];
+                if (name === 'high') return ['High: $' + value.toFixed(2)];
+                if (name === 'low') return ['Low: $' + value.toFixed(2)];
+                if (name === 'close') return ['Close: $' + value.toFixed(2)];
+                return [value];
+              }}
+              labelFormatter={(label) => `Date: ${label}`}
             />
-            <Area
-              type="monotone"
-              dataKey="price"
-              stroke="hsl(var(--primary))"
-              fillOpacity={1}
-              fill="url(#colorPrice)"
-              strokeWidth={2}
+            
+            {/* Using Bar with custom shape for candlestick */}
+            <Bar
+              dataKey="highLowDiff"
+              shape={renderCandlestick}
+              isAnimationActive={false}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
     </div>
