@@ -70,10 +70,6 @@ export function PriceChart({ stockData }: PriceChartProps) {
     // These props are needed for custom candlestick rendering
     highLowDiff: item.high - item.low,
     openCloseDiff: Math.abs(item.open - item.close),
-    // Add color to volume bars based on price direction
-    volumeColor: item.close >= item.open 
-      ? "hsl(var(--success))" 
-      : "hsl(var(--destructive))"
   }));
 
   return (
@@ -86,7 +82,7 @@ export function PriceChart({ stockData }: PriceChartProps) {
         </div>
       </div>
       
-      <div className="h-[500px]">
+      <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={candlestickData}
@@ -94,23 +90,7 @@ export function PriceChart({ stockData }: PriceChartProps) {
           >
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
             <XAxis dataKey="date" />
-            
-            {/* Primary Y-axis for price data */}
-            <YAxis 
-              yAxisId="price"
-              domain={['auto', 'auto']} 
-              orientation="right"
-              tickFormatter={(value) => `$${value}`}
-            />
-            
-            {/* Secondary Y-axis for volume data */}
-            <YAxis 
-              yAxisId="volume"
-              domain={[0, 'dataMax']} 
-              orientation="left"
-              tickFormatter={(value) => `${(value / 1000000).toFixed(1)}M`}
-            />
-            
+            <YAxis domain={['auto', 'auto']} />
             <Tooltip 
               contentStyle={{ 
                 backgroundColor: 'hsl(var(--card))',
@@ -123,34 +103,13 @@ export function PriceChart({ stockData }: PriceChartProps) {
                 if (name === 'high') return ['High: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
                 if (name === 'low') return ['Low: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
                 if (name === 'close') return ['Close: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                if (name === 'volume') return ['Volume: ' + (typeof value === 'number' ? value.toLocaleString() : value)];
                 return [value];
               }}
               labelFormatter={(label) => `Date: ${label}`}
             />
             
-            {/* Volume bars at the bottom of the chart */}
-            <Bar
-              yAxisId="volume"
-              dataKey="volume"
-              fill="#8B5CF6"
-              opacity={0.8}
-              maxBarSize={6}
-              isAnimationActive={false}
-              name="volume"
-              // Use color based on price direction (up/down)
-              fillOpacity={0.6}
-              shape={(props: any) => {
-                const { x, y, width, height, fill, index } = props;
-                const item = candlestickData[index];
-                const color = item.close >= item.open ? "hsl(var(--success))" : "hsl(var(--destructive))";
-                return <rect x={x} y={y} width={width} height={height} fill={color} />;
-              }}
-            />
-            
             {/* Using Bar with custom shape for candlestick */}
             <Bar
-              yAxisId="price"
               dataKey="highLowDiff"
               shape={renderCandlestick}
               isAnimationActive={false}

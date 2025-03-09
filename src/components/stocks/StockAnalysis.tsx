@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import StockHeader from './StockHeader';
 import TimeframeSelector from './TimeframeSelector';
 import PriceChart from './PriceChart';
+import VolumeChart from './VolumeChart';
 import TechnicalIndicators from './TechnicalIndicators';
 import { dummyStockData, timeframeOptions, getDefaultIndicators, StockData } from './dummyData';
 
@@ -22,7 +23,9 @@ export function StockAnalysis() {
       const response = await N8nService.fetchStockData(stockSymbol, timeframe);
       
       if (response.success && response.data) {
+        // In a real implementation, we'd use the actual data from the n8n webhook
         console.log('Received stock data:', response.data);
+        // For now we'll use our dummy data with slight variations
         setStockData(dummyStockData.map(item => ({
           ...item,
           open: item.open * (0.9 + Math.random() * 0.2),
@@ -40,6 +43,8 @@ export function StockAnalysis() {
         description: "Failed to fetch stock data. Using sample data instead.",
         variant: "destructive",
       });
+      // Keep the current data in case of error
+    } finally {
       setIsLoading(false);
     }
   };
@@ -93,6 +98,8 @@ export function StockAnalysis() {
         />
         
         <PriceChart stockData={stockData} />
+        
+        <VolumeChart stockData={stockData} />
         
         <TechnicalIndicators indicators={indicators} />
       </div>
