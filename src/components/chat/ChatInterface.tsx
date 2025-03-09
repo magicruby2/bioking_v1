@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, RefreshCw } from 'lucide-react';
+import { Send, RefreshCw, Loader2 } from 'lucide-react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 
@@ -105,15 +105,27 @@ export function ChatInterface() {
     setInputValue('');
     setIsLoading(true);
     
+    // Add a temporary waiting message
+    const waitingMessageId = (Date.now() + 1).toString();
+    setMessages(prev => [...prev, {
+      id: waitingMessageId,
+      content: "",
+      sender: 'assistant',
+      timestamp: new Date()
+    }]);
+    
     try {
       const response = await N8nService.sendChatMessage(inputValue, sessionId);
+      
+      // Remove the waiting message
+      setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       if (response.success) {
         // Extract the text response from the data structure
         const responseText = extractResponseText(response.data);
         
         const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
+          id: (Date.now() + 2).toString(),
           content: responseText,
           sender: 'assistant',
           timestamp: new Date()
@@ -125,6 +137,10 @@ export function ChatInterface() {
       }
     } catch (error) {
       console.error('Error in chat:', error);
+      
+      // Remove the waiting message
+      setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
+      
       toast({
         title: "Error",
         description: "Failed to get a response. Please try again.",
@@ -133,7 +149,7 @@ export function ChatInterface() {
       
       // Add a fallback message when the real webhook fails
       const fallbackMessage: Message = {
-        id: (Date.now() + 1).toString(),
+        id: (Date.now() + 2).toString(),
         content: "I'm having trouble connecting to the n8n workflow. This is a simulated response until the connection is restored. How else can I assist you?",
         sender: 'assistant',
         timestamp: new Date()
@@ -168,13 +184,20 @@ export function ChatInterface() {
                     : '0 2px 6px rgba(0,0,0,0.05)'
                 }}
               >
-                <div className="prose">
-                  {message.content.split('\n').map((paragraph, i) => (
-                    <p key={i} className="m-0 leading-relaxed">
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
+                {message.content ? (
+                  <div className="prose">
+                    {message.content.split('\n').map((paragraph, i) => (
+                      <p key={i} className="m-0 leading-relaxed">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2 py-2">
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                  </div>
+                )}
                 <div className="mt-1 text-right">
                   <span className="text-xs opacity-60">
                     {message.timestamp.toLocaleTimeString([], { 
