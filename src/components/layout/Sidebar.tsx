@@ -1,15 +1,9 @@
+
 import { useState } from 'react';
-import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2, X } from 'lucide-react';
+import { Plus, Folder, MessageCircle, RefreshCw, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-
-interface ChatFolder {
-  id: string;
-  name: string;
-  expanded: boolean;
-}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -29,33 +23,25 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   
   const { toast } = useToast();
   
-  const [folders, setFolders] = useState<ChatFolder[]>([
-    { id: 'f1', name: 'Work Related', expanded: true },
-    { id: 'f2', name: 'Personal Projects', expanded: false },
-    { id: 'uncategorized', name: 'Uncategorized', expanded: true },
-  ]);
+  // Define fixed folders - Chat and Reports only
+  const folders = [
+    { id: 'chat', name: 'Chat', expanded: true },
+    { id: 'reports', name: 'Reports', expanded: true },
+  ];
   
   const toggleFolder = (folderId: string) => {
-    setFolders(folders.map(folder => 
-      folder.id === folderId 
-        ? { ...folder, expanded: !folder.expanded } 
-        : folder
-    ));
-  };
-  
-  const [showFolderInput, setShowFolderInput] = useState(false);
-  const [newFolderName, setNewFolderName] = useState('');
-  
-  const handleCreateFolder = () => {
-    if (newFolderName.trim()) {
-      const newFolder: ChatFolder = {
-        id: `f${folders.length + 1}`,
-        name: newFolderName,
-        expanded: true
+    // Find folder index
+    const folderIndex = folders.findIndex(folder => folder.id === folderId);
+    
+    if (folderIndex !== -1) {
+      // Create a copy of the folders array
+      const updatedFolders = [...folders];
+      
+      // Toggle the expanded property of the found folder
+      updatedFolders[folderIndex] = {
+        ...updatedFolders[folderIndex],
+        expanded: !updatedFolders[folderIndex].expanded
       };
-      setFolders([...folders, newFolder]);
-      setNewFolderName('');
-      setShowFolderInput(false);
     }
   };
 
@@ -143,39 +129,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
         
         <div className="mt-6 flex items-center justify-between px-4 md:px-6">
           <h2 className="text-sm font-medium text-muted-foreground">Folders</h2>
-          <button
-            onClick={() => setShowFolderInput(true)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-          >
-            <FolderPlus className="h-4 w-4" />
-            <span className="sr-only">Create folder</span>
-          </button>
         </div>
-        
-        {showFolderInput && (
-          <div className="mt-2 px-4 md:px-6">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Folder name"
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCreateFolder();
-                  if (e.key === 'Escape') setShowFolderInput(false);
-                }}
-              />
-              <button
-                onClick={handleCreateFolder}
-                className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              >
-                Add
-              </button>
-            </div>
-          </div>
-        )}
         
         <nav className="hide-scrollbar mt-2 flex flex-col gap-1 overflow-y-auto px-2 md:px-4">
           {isLoading ? (
@@ -206,7 +160,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                   {folder.expanded && (
                     <div className="ml-4 mt-1 flex flex-col gap-1">
                       {chats
-                        .filter(chat => folder.id === 'uncategorized' ? !chat.folderId : chat.folderId === folder.id)
+                        .filter(chat => chat.folderId === folder.id)
                         .map(chat => (
                           <div 
                             key={chat.id}

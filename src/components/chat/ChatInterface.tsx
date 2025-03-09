@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -156,13 +157,20 @@ export function ChatInterface() {
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
         const chatMessages = updatedMessages.map(convertToChatMessage);
+        
+        // Set session type based on the message mode
+        const sessionType = mode || 'chat';
+        
         const sessionToUpdate = {
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
           createdAt: new Date().toISOString(),
-          messages: chatMessages
+          messages: chatMessages,
+          type: sessionType,
+          folderId: sessionType === 'report' ? 'reports' : 'chat'
         };
+        
         saveSession(sessionToUpdate);
         await fetchSessions();
       }
@@ -195,13 +203,18 @@ export function ChatInterface() {
         
         if (currentSessionId) {
           const chatMessages = finalMessages.map(convertToChatMessage);
+          const sessionType = mode || 'chat';
+          
           const sessionToUpdate = {
             id: currentSessionId,
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
             createdAt: new Date().toISOString(),
-            messages: chatMessages
+            messages: chatMessages,
+            type: sessionType,
+            folderId: sessionType === 'report' ? 'reports' : 'chat'
           };
+          
           saveSession(sessionToUpdate);
           await fetchSessions();
         }
@@ -231,13 +244,18 @@ export function ChatInterface() {
       
       if (currentSessionId && isSessionInitialized) {
         const chatMessages = finalMessages.map(convertToChatMessage);
+        const sessionType = mode || 'chat';
+        
         saveSession({
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: fallbackMessage.content,
           createdAt: new Date().toISOString(),
-          messages: chatMessages
+          messages: chatMessages,
+          type: sessionType,
+          folderId: sessionType === 'report' ? 'reports' : 'chat'
         });
+        
         await fetchSessions();
       }
     } finally {

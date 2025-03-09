@@ -15,6 +15,7 @@ export type ChatSession = {
   createdAt: string;
   preview: string;
   folderId?: string | null;
+  type?: 'chat' | 'research' | 'report';
 };
 
 type ChatSessionContextType = {
@@ -75,7 +76,9 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     const sessionWithCreatedAt = {
       ...session,
       id: session.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      createdAt: session.createdAt || new Date().toISOString()
+      createdAt: session.createdAt || new Date().toISOString(),
+      // Set default folder if using report type
+      folderId: session.type === 'report' ? 'reports' : 'chat'
     };
     
     // Check if the session contains a user message
@@ -106,6 +109,11 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     if (sessionToUpdate) {
       // Update the session
       const updatedSession = { ...sessionToUpdate, ...updates };
+      
+      // If the type is being updated to 'report', update the folderId
+      if (updates.type === 'report' && (!sessionToUpdate.folderId || sessionToUpdate.folderId === 'chat')) {
+        updatedSession.folderId = 'reports';
+      }
       
       // Update in localStorage
       const updatedStoredSessions = allStoredSessions.map(session =>
@@ -149,12 +157,18 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     // Check if session already exists in localStorage
     const existingSessionIndex = allStoredSessions.findIndex(s => s.id === session.id);
     
+    // Ensure folderId is set correctly based on type
+    const sessionToSave = {
+      ...session,
+      folderId: session.type === 'report' ? 'reports' : 'chat'
+    };
+    
     if (existingSessionIndex !== -1) {
       // Update existing session in localStorage
-      allStoredSessions[existingSessionIndex] = session;
+      allStoredSessions[existingSessionIndex] = sessionToSave;
     } else {
       // Add new session to localStorage
-      allStoredSessions.push(session);
+      allStoredSessions.push(sessionToSave);
     }
     
     // Save to localStorage
@@ -167,10 +181,10 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
       
       if (existingIndex !== -1) {
         // Update existing session
-        return prevSessions.map(s => s.id === session.id ? session : s);
+        return prevSessions.map(s => s.id === session.id ? sessionToSave : s);
       } else if (hasUserMessage) {
         // Add as new session if it has user messages
-        return [...prevSessions, session];
+        return [...prevSessions, sessionToSave];
       }
       
       // No change needed
