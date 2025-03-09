@@ -30,10 +30,10 @@ export function StockHeader({
       <div className="text-right">
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">{stockSymbol}</h1>
         <div className="mt-1 flex items-center justify-end">
-          <span className="text-3xl font-bold">${currentPrice}</span>
-          <span className={`ml-2 flex items-center text-sm ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+          <span className={`flex items-center text-sm ${isPositive ? 'text-green-500' : 'text-red-500'} mr-2`}>
             {isPositive ? '+' : ''}{priceDiff} ({percentDiff}%)
           </span>
+          <span className="text-3xl font-bold">${currentPrice}</span>
         </div>
       </div>
       
