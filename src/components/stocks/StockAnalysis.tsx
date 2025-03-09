@@ -4,7 +4,6 @@ import { useToast } from "@/hooks/use-toast";
 import StockHeader from './StockHeader';
 import TimeframeSelector from './TimeframeSelector';
 import PriceChart from './PriceChart';
-import VolumeChart from './VolumeChart';
 import TechnicalIndicators from './TechnicalIndicators';
 import { dummyStockData, timeframeOptions, getDefaultIndicators, StockData } from './dummyData';
 
@@ -98,8 +97,6 @@ export function StockAnalysis() {
         />
         
         <PriceChart stockData={stockData} />
-        
-        <VolumeChart stockData={stockData} />
         
         <TechnicalIndicators indicators={indicators} />
       </div>
