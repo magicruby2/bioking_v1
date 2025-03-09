@@ -141,8 +141,8 @@ export function ChatInterface() {
       timestamp: new Date()
     };
     
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    // Immediately update the messages array with the user's message
+    setMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     
     const waitingMessageId = (Date.now() + 1).toString();
@@ -156,7 +156,14 @@ export function ChatInterface() {
     try {
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
-        const chatMessages = updatedMessages.map(convertToChatMessage);
+        // Include the user message and waiting message in the session update
+        const currentMessagesWithNewOnes = [...messages, userMessage, {
+          id: waitingMessageId,
+          content: "",
+          sender: 'assistant',
+          timestamp: new Date()
+        }];
+        const chatMessages = currentMessagesWithNewOnes.map(convertToChatMessage);
         const sessionToUpdate: ChatSession = {
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
@@ -189,6 +196,7 @@ export function ChatInterface() {
         response = await N8nService.sendChatMessage(inputValue, currentSessionId);
       }
       
+      // Remove the waiting message
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       if (response.success) {
@@ -201,11 +209,13 @@ export function ChatInterface() {
           timestamp: new Date()
         };
         
-        const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
-        setMessages(finalMessages);
+        // Only add the assistant message since the user message was already added
+        setMessages(prev => [...prev.filter(msg => msg.id !== waitingMessageId), assistantMessage]);
         
         if (currentSessionId) {
-          const chatMessages = finalMessages.map(convertToChatMessage);
+          // Get the current messages including the new assistant message
+          const currentMessagesWithResponse = [...messages.filter(msg => msg.id !== waitingMessageId), assistantMessage];
+          const chatMessages = currentMessagesWithResponse.map(convertToChatMessage);
           const sessionToUpdate: ChatSession = {
             id: currentSessionId,
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
@@ -224,6 +234,7 @@ export function ChatInterface() {
     } catch (error) {
       console.error('Error in chat:', error);
       
+      // Remove the waiting message
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       toast({
@@ -239,11 +250,12 @@ export function ChatInterface() {
         timestamp: new Date()
       };
       
-      const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
-      setMessages(finalMessages);
+      // Only add the fallback message since the user message was already added
+      setMessages(prev => [...prev.filter(msg => msg.id !== waitingMessageId), fallbackMessage]);
       
       if (currentSessionId && isSessionInitialized) {
-        const chatMessages = finalMessages.map(convertToChatMessage);
+        const currentMessagesWithFallback = [...messages.filter(msg => msg.id !== waitingMessageId), fallbackMessage];
+        const chatMessages = currentMessagesWithFallback.map(convertToChatMessage);
         saveSession({
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
