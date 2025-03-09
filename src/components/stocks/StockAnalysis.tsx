@@ -51,6 +51,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
   const [percentDiff, setPercentDiff] = useState('1.67');
   const [isPositive, setIsPositive] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [isChartCollapsed, setIsChartCollapsed] = useState(false);
   
   useEffect(() => {
     // Simulate loading
@@ -58,6 +59,10 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
       setLoading(false);
     }, 500);
   }, []);
+  
+  const handleToggleChart = () => {
+    setIsChartCollapsed(!isChartCollapsed);
+  };
   
   return (
     <div className="py-4">
@@ -103,7 +108,11 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
           </CardContent>
         </Card>
       ) : (
-        <PriceChart stockData={dummyStockData} />
+        <PriceChart 
+          stockData={dummyStockData} 
+          isCollapsed={isChartCollapsed}
+          onToggleCollapse={handleToggleChart}
+        />
       )}
     </div>
   );

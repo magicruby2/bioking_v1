@@ -1,5 +1,5 @@
 
-import { Calendar } from 'lucide-react';
+import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
   ComposedChart, 
   XAxis, 
@@ -11,9 +11,12 @@ import {
   Bar
 } from 'recharts';
 import type { StockData } from './dummyData';
+import { Button } from '@/components/ui/button';
 
 interface PriceChartProps {
   stockData: StockData[];
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 // Custom renderer for candlestick
@@ -63,7 +66,7 @@ const renderCandlestick = (
   );
 };
 
-export function PriceChart({ stockData }: PriceChartProps) {
+export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }: PriceChartProps) {
   // Calculate the data for candlestick display
   const candlestickData = stockData.map(item => ({
     ...item,
@@ -76,48 +79,60 @@ export function PriceChart({ stockData }: PriceChartProps) {
     <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-medium">Price Chart</h2>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Calendar className="mr-1 h-4 w-4" />
-          <span>Last updated: {new Date().toLocaleDateString()}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="mr-1 h-4 w-4" />
+            <span>Last updated: {new Date().toLocaleDateString()}</span>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onToggleCollapse}
+            className="ml-2"
+          >
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
       
-      <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={candlestickData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-            <XAxis dataKey="date" />
-            <YAxis domain={['auto', 'auto']} />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--card))',
-                borderColor: 'hsl(var(--border))',
-                borderRadius: '0.5rem',
-              }}
-              formatter={(value: any, name: string) => {
-                // Format tooltip values with proper type checking
-                if (name === 'open') return ['Open: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                if (name === 'high') return ['High: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                if (name === 'low') return ['Low: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                if (name === 'close') return ['Close: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                return [value];
-              }}
-              labelFormatter={(label) => `Date: ${label}`}
-            />
-            
-            {/* Using Bar with custom shape for candlestick */}
-            <Bar
-              dataKey="highLowDiff"
-              shape={renderCandlestick}
-              isAnimationActive={false}
-              legendType="none"
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
+      {!isCollapsed && (
+        <div className="h-[300px] transition-all duration-300">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart
+              data={candlestickData}
+              margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey="date" />
+              <YAxis domain={['auto', 'auto']} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--card))',
+                  borderColor: 'hsl(var(--border))',
+                  borderRadius: '0.5rem',
+                }}
+                formatter={(value: any, name: string) => {
+                  // Format tooltip values with proper type checking
+                  if (name === 'open') return ['Open: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                  if (name === 'high') return ['High: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                  if (name === 'low') return ['Low: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                  if (name === 'close') return ['Close: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                  return [value];
+                }}
+                labelFormatter={(label) => `Date: ${label}`}
+              />
+              
+              {/* Using Bar with custom shape for candlestick */}
+              <Bar
+                dataKey="highLowDiff"
+                shape={renderCandlestick}
+                isAnimationActive={false}
+                legendType="none"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }
