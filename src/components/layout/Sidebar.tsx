@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { Plus, Folder, MessageCircle, RefreshCw, Trash2, X, Search } from 'lucide-react';
+import { Plus, FolderArchive, MessageCircle, RefreshCw, Trash2, X, Search, FolderHeart, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
@@ -26,9 +25,9 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   
   // Define folders with state to track expansion - add research folder
   const [folders, setFolders] = useState([
-    { id: 'chat', name: 'Chat', expanded: false },
-    { id: 'research', name: 'Deep Research', expanded: false },
-    { id: 'reports', name: 'Reports', expanded: false },
+    { id: 'chat', name: 'Chat', expanded: false, icon: MessageCircle },
+    { id: 'research', name: 'Deep Research', expanded: false, icon: Search },
+    { id: 'reports', name: 'Reports', expanded: false, icon: FileText },
   ]);
   
   const toggleFolder = (folderId: string) => {
@@ -147,11 +146,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                     className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     <div className="flex items-center gap-2">
-                      {folder.id === 'research' ? (
-                        <Search className="h-4 w-4" />
-                      ) : (
-                        <Folder className="h-4 w-4" />
-                      )}
+                      <folder.icon className="h-4 w-4" />
                       <span className="truncate">{folder.name}</span>
                     </div>
                     <span className="text-xs">{folder.expanded ? '▾' : '▸'}</span>
@@ -219,7 +214,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                               onClick={() => handleChatSelect(chat.id)}
                               className="flex items-start gap-2 w-full overflow-hidden"
                             >
-                              <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              <FileText className="mt-0.5 h-4 w-4 shrink-0" />
                               <div className="flex flex-col items-start w-full overflow-hidden">
                                 <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
                                 <span className="truncate w-full text-xs text-left">{chat.preview}</span>
