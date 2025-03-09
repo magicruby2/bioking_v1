@@ -78,10 +78,13 @@ export function ChatInterface() {
       timestamp: new Date()
     };
     
-    setMessages(prev => [...prev, userMessage]);
+    // Immediately update local messages state to show user input
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setIsLoading(true);
     
     const waitingMessageId = (Date.now() + 1).toString();
+    // Add waiting message to show loading state
     setMessages(prev => [...prev, {
       id: waitingMessageId,
       content: "",
@@ -96,7 +99,8 @@ export function ChatInterface() {
         updateSession(currentSessionId, {
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
-          timestamp: new Date()
+          timestamp: new Date(),
+          messages: updatedMessages // Include current messages in the update
         });
       }
       
@@ -114,14 +118,14 @@ export function ChatInterface() {
           timestamp: new Date()
         };
         
-        const updatedMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
-        setMessages(updatedMessages);
+        const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
+        setMessages(finalMessages);
         
         if (currentSessionId) {
           updateSession(currentSessionId, {
             preview: responseText,
             timestamp: new Date(),
-            messages: updatedMessages
+            messages: finalMessages
           });
         }
       } else {
@@ -145,14 +149,14 @@ export function ChatInterface() {
         timestamp: new Date()
       };
       
-      const updatedMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
-      setMessages(updatedMessages);
+      const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
+      setMessages(finalMessages);
       
       if (currentSessionId && isSessionInitialized) {
         updateSession(currentSessionId, {
           preview: fallbackMessage.content,
           timestamp: new Date(),
-          messages: updatedMessages
+          messages: finalMessages
         });
       }
     } finally {
