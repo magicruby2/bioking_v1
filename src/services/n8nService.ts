@@ -1,10 +1,11 @@
+
 interface WebhookResponse {
   success: boolean;
   data?: any;
   error?: string;
 }
 
-export type WebhookType = 'chat' | 'stocks' | 'news' | 'stocksOverview';
+export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview';
 
 const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
 
@@ -29,6 +30,8 @@ export class N8nService {
   private getWebhookUrl(type: WebhookType): string {
     const endpoints = {
       chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
+      research: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
+      report: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
       stocks: 'webhook-test/2', 
       news: 'webhook-test/3',
       stocksOverview: 'webhook-test/e7811fb4-17f2-4660-9f96-be1cbbebe029'
@@ -95,6 +98,22 @@ export class N8nService {
     // Ensure sessionId is not empty
     const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId: safeSessionId }, 'GET');
+  }
+  
+  /**
+   * Sends a research request to the n8n webhook
+   */
+  public static async sendResearchRequest(message: string, sessionId: string): Promise<WebhookResponse> {
+    const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    return N8nService.getInstance().sendWebhookRequest('research', { message, sessionId: safeSessionId, type: 'research' }, 'GET');
+  }
+  
+  /**
+   * Sends a report request to the n8n webhook
+   */
+  public static async sendReportRequest(message: string, sessionId: string): Promise<WebhookResponse> {
+    const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    return N8nService.getInstance().sendWebhookRequest('report', { message, sessionId: safeSessionId, type: 'report' }, 'GET');
   }
   
   /**

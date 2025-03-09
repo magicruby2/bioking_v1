@@ -130,12 +130,12 @@ export function ChatInterface() {
       console.log("Created new session ID before sending message:", newId);
     }
     
-    const messagePrefix = mode ? `[${mode.toUpperCase()}] ` : '';
-    const messageContent = `${messagePrefix}${inputValue}`;
+    const displayMessagePrefix = mode ? `[${mode.toUpperCase()}] ` : '';
+    const displayMessageContent = `${displayMessagePrefix}${inputValue}`;
     
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: messageContent,
+      content: displayMessageContent,
       sender: 'user',
       timestamp: new Date()
     };
@@ -167,8 +167,16 @@ export function ChatInterface() {
         await fetchSessions();
       }
       
-      console.log("Sending message with session ID:", currentSessionId);
-      const response = await N8nService.sendChatMessage(messageContent, currentSessionId);
+      console.log(`Sending ${mode || 'regular'} message with session ID:`, currentSessionId);
+      
+      let response;
+      if (mode === 'research') {
+        response = await N8nService.sendResearchRequest(inputValue, currentSessionId);
+      } else if (mode === 'report') {
+        response = await N8nService.sendReportRequest(inputValue, currentSessionId);
+      } else {
+        response = await N8nService.sendChatMessage(inputValue, currentSessionId);
+      }
       
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
