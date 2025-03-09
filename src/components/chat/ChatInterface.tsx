@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +5,7 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import { Message } from './types';
 import { extractResponseText } from './chatUtils';
-import { useChatSessions, ChatMessage, ChatSession } from './ChatSessionContext';
+import { useChatSessions, ChatMessage } from './ChatSessionContext';
 
 const convertToChatMessage = (message: Message): ChatMessage => {
   return {
@@ -141,8 +140,8 @@ export function ChatInterface() {
       timestamp: new Date()
     };
     
-    // Immediately update the messages array with the user's message
-    setMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setIsLoading(true);
     
     const waitingMessageId = (Date.now() + 1).toString();
@@ -156,33 +155,16 @@ export function ChatInterface() {
     try {
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
-        // Include the user message and waiting message in the session update
-        const currentMessagesWithNewOnes = [...messages, userMessage, {
-          id: waitingMessageId,
-          content: "",
-          sender: 'assistant',
-          timestamp: new Date()
-        }];
-        const chatMessages = currentMessagesWithNewOnes.map(convertToChatMessage);
-        const sessionToUpdate: ChatSession = {
+        const chatMessages = updatedMessages.map(convertToChatMessage);
+        const sessionToUpdate = {
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
           createdAt: new Date().toISOString(),
-          messages: chatMessages,
-          type: mode || 'chat', // Now properly typed as 'chat' | 'research' | 'report'
-          folderId: mode === 'report' ? 'reports' : null 
+          messages: chatMessages
         };
         saveSession(sessionToUpdate);
         await fetchSessions();
-      } else if (currentSessionId) {
-        // If this is the first report message for this session, update the type
-        if (mode === 'report') {
-          updateSession(currentSessionId, {
-            type: 'report',
-            folderId: 'reports'
-          });
-        }
       }
       
       console.log(`Sending ${mode || 'regular'} message with session ID:`, currentSessionId);
@@ -196,7 +178,6 @@ export function ChatInterface() {
         response = await N8nService.sendChatMessage(inputValue, currentSessionId);
       }
       
-      // Remove the waiting message
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       if (response.success) {
@@ -209,21 +190,17 @@ export function ChatInterface() {
           timestamp: new Date()
         };
         
-        // Only add the assistant message since the user message was already added
-        setMessages(prev => [...prev.filter(msg => msg.id !== waitingMessageId), assistantMessage]);
+        const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
+        setMessages(finalMessages);
         
         if (currentSessionId) {
-          // Get the current messages including the new assistant message
-          const currentMessagesWithResponse = [...messages.filter(msg => msg.id !== waitingMessageId), assistantMessage];
-          const chatMessages = currentMessagesWithResponse.map(convertToChatMessage);
-          const sessionToUpdate: ChatSession = {
+          const chatMessages = finalMessages.map(convertToChatMessage);
+          const sessionToUpdate = {
             id: currentSessionId,
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
             createdAt: new Date().toISOString(),
-            messages: chatMessages,
-            type: mode || 'chat', // Now properly typed
-            folderId: mode === 'report' ? 'reports' : undefined
+            messages: chatMessages
           };
           saveSession(sessionToUpdate);
           await fetchSessions();
@@ -234,7 +211,6 @@ export function ChatInterface() {
     } catch (error) {
       console.error('Error in chat:', error);
       
-      // Remove the waiting message
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       toast({
@@ -250,12 +226,11 @@ export function ChatInterface() {
         timestamp: new Date()
       };
       
-      // Only add the fallback message since the user message was already added
-      setMessages(prev => [...prev.filter(msg => msg.id !== waitingMessageId), fallbackMessage]);
+      const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
+      setMessages(finalMessages);
       
       if (currentSessionId && isSessionInitialized) {
-        const currentMessagesWithFallback = [...messages.filter(msg => msg.id !== waitingMessageId), fallbackMessage];
-        const chatMessages = currentMessagesWithFallback.map(convertToChatMessage);
+        const chatMessages = finalMessages.map(convertToChatMessage);
         saveSession({
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),

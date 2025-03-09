@@ -15,7 +15,6 @@ export type ChatSession = {
   createdAt: string;
   preview: string;
   folderId?: string | null;
-  type?: 'chat' | 'research' | 'report'; // Add type to identify session mode
 };
 
 type ChatSessionContextType = {
@@ -76,9 +75,7 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     const sessionWithCreatedAt = {
       ...session,
       id: session.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-      createdAt: session.createdAt || new Date().toISOString(),
-      // Assign folder based on session type if not already assigned
-      folderId: session.folderId || (session.type === 'report' ? 'reports' : null)
+      createdAt: session.createdAt || new Date().toISOString()
     };
     
     // Check if the session contains a user message
@@ -107,27 +104,8 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     const sessionToUpdate = allStoredSessions.find(s => s.id === sessionId);
     
     if (sessionToUpdate) {
-      // Check if this update contains a report type message
-      const updatesContainReportMessage = 
-        updates.messages?.some(msg => 
-          msg.role === 'user' && 
-          msg.content.includes('[REPORT]')
-        );
-      
-      // Update the session with proper folder assignment
-      const updatedSession = { 
-        ...sessionToUpdate, 
-        ...updates,
-        // If this is a report session, make sure it's in the reports folder
-        folderId: updatesContainReportMessage ? 'reports' : 
-                 (updates.type === 'report' ? 'reports' : 
-                 updates.folderId !== undefined ? updates.folderId : sessionToUpdate.folderId)
-      };
-      
-      // If we're setting the type to report, ensure it's in the reports folder
-      if (updates.type === 'report' && !updatedSession.folderId) {
-        updatedSession.folderId = 'reports';
-      }
+      // Update the session
+      const updatedSession = { ...sessionToUpdate, ...updates };
       
       // Update in localStorage
       const updatedStoredSessions = allStoredSessions.map(session =>
@@ -164,18 +142,6 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     // Check if the session has at least one user message
     const hasUserMessage = session.messages.some(msg => msg.role === 'user');
     
-    // Check if this is a report session
-    const hasReportMessage = session.messages.some(msg => 
-      msg.role === 'user' && msg.content.includes('[REPORT]')
-    );
-    
-    // Prepare the final session with proper folder assignment
-    const finalSession = {
-      ...session,
-      folderId: hasReportMessage ? 'reports' : 
-               (session.type === 'report' ? 'reports' : session.folderId)
-    };
-    
     // Get current sessions from localStorage
     const storedSessions = localStorage.getItem('chatSessions');
     const allStoredSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
@@ -185,10 +151,10 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     
     if (existingSessionIndex !== -1) {
       // Update existing session in localStorage
-      allStoredSessions[existingSessionIndex] = finalSession;
+      allStoredSessions[existingSessionIndex] = session;
     } else {
       // Add new session to localStorage
-      allStoredSessions.push(finalSession);
+      allStoredSessions.push(session);
     }
     
     // Save to localStorage
@@ -201,10 +167,10 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
       
       if (existingIndex !== -1) {
         // Update existing session
-        return prevSessions.map(s => s.id === session.id ? finalSession : s);
+        return prevSessions.map(s => s.id === session.id ? session : s);
       } else if (hasUserMessage) {
         // Add as new session if it has user messages
-        return [...prevSessions, finalSession];
+        return [...prevSessions, session];
       }
       
       // No change needed
