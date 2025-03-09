@@ -1,5 +1,5 @@
 
-import { Calendar } from 'lucide-react';
+import { Calendar, X } from 'lucide-react';
 import { 
   ComposedChart, 
   XAxis, 
@@ -11,9 +11,11 @@ import {
   Bar
 } from 'recharts';
 import type { StockData } from './dummyData';
+import { Button } from '@/components/ui/button';
 
 interface PriceChartProps {
   stockData: StockData[];
+  onClose?: () => void;
 }
 
 // Custom renderer for candlestick
@@ -63,7 +65,7 @@ const renderCandlestick = (
   );
 };
 
-export function PriceChart({ stockData }: PriceChartProps) {
+export function PriceChart({ stockData, onClose }: PriceChartProps) {
   // Calculate the data for candlestick display
   const candlestickData = stockData.map(item => ({
     ...item,
@@ -76,9 +78,22 @@ export function PriceChart({ stockData }: PriceChartProps) {
     <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-lg font-medium">Price Chart</h2>
-        <div className="flex items-center text-sm text-muted-foreground">
-          <Calendar className="mr-1 h-4 w-4" />
-          <span>Last updated: {new Date().toLocaleDateString()}</span>
+        <div className="flex items-center gap-2">
+          <div className="flex items-center text-sm text-muted-foreground">
+            <Calendar className="mr-1 h-4 w-4" />
+            <span>Last updated: {new Date().toLocaleDateString()}</span>
+          </div>
+          {onClose && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose}
+              className="ml-2 p-1 h-8 w-8"
+              aria-label="Close chart"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
       

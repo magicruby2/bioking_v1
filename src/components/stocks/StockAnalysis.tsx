@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import StockHeader from '@/components/stocks/StockHeader';
 import PriceChart from '@/components/stocks/PriceChart';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BarChart } from 'lucide-react';
 import { 
   Card, 
   CardContent, 
@@ -51,6 +51,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
   const [percentDiff, setPercentDiff] = useState('1.67');
   const [isPositive, setIsPositive] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [showChart, setShowChart] = useState(true);
   
   useEffect(() => {
     // Simulate loading
@@ -58,6 +59,14 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
       setLoading(false);
     }, 500);
   }, []);
+  
+  const handleCloseChart = () => {
+    setShowChart(false);
+  };
+  
+  const handleOpenChart = () => {
+    setShowChart(true);
+  };
   
   return (
     <div className="py-4">
@@ -102,8 +111,19 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
             <Skeleton className="h-[300px]" />
           </CardContent>
         </Card>
+      ) : showChart ? (
+        <PriceChart stockData={dummyStockData} onClose={handleCloseChart} />
       ) : (
-        <PriceChart stockData={dummyStockData} />
+        <div className="flex justify-center my-8">
+          <Button 
+            variant="outline" 
+            onClick={handleOpenChart}
+            className="flex items-center gap-2"
+          >
+            <BarChart className="h-4 w-4" />
+            Show Price Chart
+          </Button>
+        </div>
       )}
     </div>
   );
