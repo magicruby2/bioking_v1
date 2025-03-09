@@ -45,7 +45,7 @@ const ChatPageContent = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar isOpen={isSidebarOpen} onNewChat={handleNewChat} />
         
-        <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
+        <main className="flex-1 w-full">
           <ChatInterface />
         </main>
       </div>
