@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -31,6 +32,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   const [folders, setFolders] = useState<ChatFolder[]>([
     { id: 'f1', name: 'Work Related', expanded: true },
     { id: 'f2', name: 'Personal Projects', expanded: false },
+    { id: 'uncategorized', name: 'Uncategorized', expanded: true },
   ]);
   
   const toggleFolder = (folderId: string) => {
@@ -187,19 +189,22 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                   {folder.expanded && (
                     <div className="ml-4 mt-1 flex flex-col gap-1">
                       {chats
-                        .filter(chat => chat.folderId === folder.id)
+                        .filter(chat => folder.id === 'uncategorized' ? !chat.folderId : chat.folderId === folder.id)
                         .map(chat => (
                           <button
                             key={chat.id}
                             onClick={() => handleChatSelect(chat.id)}
-                            className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-left ${
+                            className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-left ${
                               currentSessionId === chat.id 
                                 ? 'bg-secondary text-foreground' 
                                 : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
                             }`}
                           >
-                            <MessageCircle className="h-4 w-4 shrink-0" />
-                            <span className="truncate w-full text-left">{chat.title}</span>
+                            <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                            <div className="flex flex-col items-start w-full overflow-hidden">
+                              <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
+                              <span className="truncate w-full text-xs text-left">{chat.preview}</span>
+                            </div>
                           </button>
                         ))
                       }
@@ -207,36 +212,6 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                   )}
                 </div>
               ))}
-              
-              <div className="mt-2">
-                <h2 className="px-2 py-1 text-xs font-medium text-muted-foreground">Recent Chats</h2>
-                
-                {chats.length === 0 ? (
-                  <div className="px-2 py-3 text-sm text-muted-foreground">
-                    No recent chats found
-                  </div>
-                ) : (
-                  chats
-                    .filter(chat => !chat.folderId)
-                    .map(chat => (
-                      <button
-                        key={chat.id}
-                        onClick={() => handleChatSelect(chat.id)}
-                        className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-left ${
-                          currentSessionId === chat.id 
-                            ? 'bg-secondary text-foreground' 
-                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                        }`}
-                      >
-                        <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                        <div className="flex flex-col items-start w-full overflow-hidden">
-                          <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
-                          <span className="truncate w-full text-xs text-left">{chat.preview}</span>
-                        </div>
-                      </button>
-                    ))
-                )}
-              </div>
             </>
           )}
         </nav>
