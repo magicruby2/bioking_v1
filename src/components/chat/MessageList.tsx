@@ -43,24 +43,26 @@ export function MessageList({ messages }: MessageListProps) {
                   : "bg-secondary text-secondary-foreground rounded-tl-none"
               )}
             >
-              {message.content ? (
-                <div className="prose">
-                  {message.content.split('\n').map((paragraph, i) => (
-                    <p key={i} className="m-0 leading-relaxed text-left">
-                      {paragraph}
-                    </p>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center py-2">
-                  <img 
-                    src="/Epic-chess-battle.gif" 
-                    alt="Loading" 
-                    className="h-12 w-12 mb-1"
-                  />
-                  <span className="text-xs text-muted-foreground">Thinking...</span>
-                </div>
-              )}
+              {message.content || message.content === '' ? (
+                message.content ? (
+                  <div className="prose">
+                    {message.content.split('\n').map((paragraph, i) => (
+                      <p key={i} className="m-0 leading-relaxed text-left">
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center py-2">
+                    <img 
+                      src="/Epic-chess-battle.gif" 
+                      alt="Loading" 
+                      className="h-12 w-12 mb-1"
+                    />
+                    <span className="text-xs text-muted-foreground">Thinking...</span>
+                  </div>
+                )
+              ) : null}
               <div className="mt-1 text-right">
                 <span className="text-xs opacity-60">
                   {message.timestamp.toLocaleTimeString([], { 

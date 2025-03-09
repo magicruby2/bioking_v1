@@ -80,6 +80,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
             className="flex items-center gap-2"
             type="button"
             size="sm"
+            disabled={isLoading}
           >
             <FileText className="h-4 w-4" />
             Report
