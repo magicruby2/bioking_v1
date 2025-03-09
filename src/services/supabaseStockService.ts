@@ -1,31 +1,10 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// This is just an example - in a real implementation, we would use the Supabase client from the integration
-const mockSupabaseClient = {
-  from: (table: string) => ({
-    select: () => ({
-      order: () => ({
-        data: null,
-        error: null,
-      }),
-    }),
-    insert: () => ({
-      data: null,
-      error: null,
-    }),
-    update: () => ({
-      data: null, 
-      error: null,
-    }),
-    delete: () => ({
-      match: () => ({
-        data: null,
-        error: null,
-      }),
-    }),
-  }),
-};
+// Create a single Supabase client for interacting with your database
+const supabaseUrl = 'https://your-project-url.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || 'public-anon-key';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface Stock {
   id: string;
@@ -37,52 +16,86 @@ export interface Stock {
 }
 
 export const fetchStocks = async (): Promise<Stock[]> => {
-  // TODO: Replace with actual Supabase client once integration is set up
-  const supabase = mockSupabaseClient;
-  
-  // In a real implementation, we would fetch from Supabase like this:
-  // const { data, error } = await supabase
-  //   .from('stocks')
-  //   .select('*')
-  //   .order('symbol', { ascending: true });
-  
-  // if (error) {
-  //   console.error('Error fetching stocks:', error);
-  //   throw new Error(error.message);
-  // }
-  
-  // return data as Stock[];
-  
-  // For now, return mock data
-  return [
-    { id: '1', symbol: 'AAPL', name: 'Apple Inc.', current_price: 172.40, change_percent: 0.8, last_updated: new Date().toISOString() },
-    { id: '2', symbol: 'MSFT', name: 'Microsoft Corp.', current_price: 339.31, change_percent: 1.2, last_updated: new Date().toISOString() },
-    { id: '3', symbol: 'GOOGL', name: 'Alphabet Inc.', current_price: 139.80, change_percent: -0.5, last_updated: new Date().toISOString() },
-    { id: '4', symbol: 'AMZN', name: 'Amazon.com Inc.', current_price: 123.20, change_percent: 2.1, last_updated: new Date().toISOString() },
-    { id: '5', symbol: 'META', name: 'Meta Platforms Inc.', current_price: 308.65, change_percent: 1.7, last_updated: new Date().toISOString() },
-    { id: '6', symbol: 'TSLA', name: 'Tesla Inc.', current_price: 274.39, change_percent: -1.3, last_updated: new Date().toISOString() },
-    { id: '7', symbol: 'NVDA', name: 'NVIDIA Corp.', current_price: 431.60, change_percent: 3.2, last_updated: new Date().toISOString() },
-  ];
+  try {
+    console.log('Fetching stocks from bio_stock schema...');
+    
+    const { data, error } = await supabase
+      .from('bio_stock')
+      .select('*')
+      .order('symbol', { ascending: true });
+    
+    if (error) {
+      console.error('Error fetching stocks:', error);
+      throw new Error(error.message);
+    }
+    
+    console.log('Fetched stocks:', data);
+    return data as Stock[];
+  } catch (error) {
+    console.error('Exception fetching stocks:', error);
+    // Return empty array instead of throwing to prevent white screen
+    return [];
+  }
 };
 
 export const addStock = async (stock: Omit<Stock, 'id' | 'last_updated'>): Promise<Stock> => {
-  // TODO: Implement with actual Supabase client once integration is set up
-  console.log('Adding stock:', stock);
-  
-  // Mock implementation
-  return {
-    id: Math.random().toString(36).substring(2, 9),
-    ...stock,
-    last_updated: new Date().toISOString(),
-  };
+  try {
+    const newStock = {
+      ...stock,
+      last_updated: new Date().toISOString(),
+    };
+    
+    const { data, error } = await supabase
+      .from('bio_stock')
+      .insert([newStock])
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Error adding stock:', error);
+      throw new Error(error.message);
+    }
+    
+    return data as Stock;
+  } catch (error) {
+    console.error('Exception adding stock:', error);
+    throw error;
+  }
 };
 
 export const updateStock = async (id: string, updates: Partial<Stock>): Promise<void> => {
-  // TODO: Implement with actual Supabase client once integration is set up
-  console.log('Updating stock:', id, updates);
+  try {
+    const { error } = await supabase
+      .from('bio_stock')
+      .update({
+        ...updates,
+        last_updated: new Date().toISOString(),
+      })
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error updating stock:', error);
+      throw new Error(error.message);
+    }
+  } catch (error) {
+    console.error('Exception updating stock:', error);
+    throw error;
+  }
 };
 
 export const deleteStock = async (id: string): Promise<void> => {
-  // TODO: Implement with actual Supabase client once integration is set up
-  console.log('Deleting stock:', id);
+  try {
+    const { error } = await supabase
+      .from('bio_stock')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error('Error deleting stock:', error);
+      throw new Error(error.message);
+    }
+  } catch (error) {
+    console.error('Exception deleting stock:', error);
+    throw error;
+  }
 };
