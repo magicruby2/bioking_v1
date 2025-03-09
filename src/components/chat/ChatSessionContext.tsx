@@ -15,6 +15,7 @@ interface ChatSessionContextType {
   currentSessionId: string | null;
   addSession: (session: ChatSession) => void;
   updateSession: (sessionId: string, updates: Partial<ChatSession>) => void;
+  deleteSession: (sessionId: string) => void;
   setCurrentSessionId: (id: string | null) => void;
   clearAllSessions: () => void;
   fetchSessions: () => Promise<void>;
@@ -138,6 +139,23 @@ const PostgresService = {
     }
   },
 
+  // Simulate deleting a session in PostgreSQL
+  deleteSession: async (sessionId: string): Promise<void> => {
+    console.log('Simulating PostgreSQL delete...', sessionId);
+    
+    const savedSessions = localStorage.getItem('chatSessions');
+    
+    if (savedSessions) {
+      try {
+        const sessions = JSON.parse(savedSessions);
+        const updatedSessions = sessions.filter((session: any) => session.id !== sessionId);
+        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      } catch (error) {
+        console.error('Error deleting chat session:', error);
+      }
+    }
+  },
+
   // Simulate clearing all sessions in PostgreSQL
   clearAllSessions: async (): Promise<void> => {
     console.log('Simulating PostgreSQL delete all...');
@@ -223,6 +241,23 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     }
   };
 
+  const deleteSession = async (sessionId: string) => {
+    try {
+      // Remove from in-memory state
+      setSessions(prev => prev.filter(session => session.id !== sessionId));
+      
+      // If the deleted session is the current one, create a new session
+      if (currentSessionId === sessionId) {
+        setCurrentSessionId(null);
+      }
+      
+      // Remove from storage
+      await PostgresService.deleteSession(sessionId);
+    } catch (error) {
+      console.error('Error deleting session:', error);
+    }
+  };
+
   const clearAllSessions = async () => {
     try {
       setIsLoading(true);
@@ -242,7 +277,8 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         sessions, 
         currentSessionId, 
         addSession, 
-        updateSession, 
+        updateSession,
+        deleteSession,
         setCurrentSessionId,
         clearAllSessions,
         fetchSessions,
