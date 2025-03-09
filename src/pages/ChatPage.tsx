@@ -5,6 +5,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
 import { ChatSessionProvider, useChatSessions } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
+import { Toaster } from '@/components/ui/toaster';
 
 const ChatPageContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -54,6 +55,7 @@ const ChatPageContent = () => {
           <ChatInterface />
         </main>
       </div>
+      <Toaster />
     </div>
   );
 };

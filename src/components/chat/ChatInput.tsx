@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Send, RefreshCw, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,9 +43,10 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
       const currentSession = sessions.find(session => session.id === currentSessionId);
       if (currentSession && currentSession.messages.length > 1) {
         toast({
-          title: "Cannot change mode",
-          description: "Please create a new chat session to use a different mode.",
+          title: "Cannot Change Chat Mode",
+          description: "This chat already has messages. Please create a new chat session to use a different mode.",
           variant: "destructive",
+          duration: 5000, // Show for 5 seconds
         });
         return;
       }
