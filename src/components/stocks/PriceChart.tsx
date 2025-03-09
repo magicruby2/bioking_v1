@@ -1,4 +1,3 @@
-
 import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
   ComposedChart, 
@@ -77,7 +76,7 @@ export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }:
 
   return (
     <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
-      <div className="mb-4 flex items-center justify-between">
+      <div className={`flex items-center justify-between ${isCollapsed ? 'mb-0' : 'mb-4'}`}>
         <h2 className="text-lg font-medium">Price Chart</h2>
         <div className="flex items-center gap-2">
           <div className="flex items-center text-sm text-muted-foreground">
@@ -95,7 +94,7 @@ export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }:
         </div>
       </div>
       
-      {!isCollapsed && (
+      {!isCollapsed ? (
         <div className="h-[300px] transition-all duration-300">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart
@@ -131,6 +130,10 @@ export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }:
               />
             </ComposedChart>
           </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="flex items-center justify-center h-12 transition-all duration-300">
+          <p className="text-sm text-muted-foreground">Click to expand chart</p>
         </div>
       )}
     </div>
