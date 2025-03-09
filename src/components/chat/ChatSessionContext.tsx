@@ -88,16 +88,12 @@ const PostgresService = {
   updateSession: async (sessionId: string, updates: Partial<ChatSession>): Promise<void> => {
     console.log('Simulating PostgreSQL update...', { sessionId, updates });
     
-    // Only save sessions with user messages
-    if (!updates.messages || updates.messages.length <= 1) {
-      return; // Don't persist sessions without user messages
-    }
-    
     const savedSessions = localStorage.getItem('chatSessions');
+    let sessions = [];
     
     if (savedSessions) {
       try {
-        const sessions = JSON.parse(savedSessions);
+        sessions = JSON.parse(savedSessions);
         const sessionExists = sessions.some((s: any) => s.id === sessionId);
         
         if (sessionExists) {
@@ -125,17 +121,15 @@ const PostgresService = {
       }
     } else {
       // No existing sessions, create a new array with this session
-      if (updates.messages && updates.messages.length > 1) {
-        const newSession = {
-          id: sessionId,
-          title: updates.title || "New Conversation",
-          preview: updates.preview || "",
-          timestamp: new Date(),
-          folderId: updates.folderId,
-          messages: updates.messages
-        };
-        localStorage.setItem('chatSessions', JSON.stringify([newSession]));
-      }
+      const newSession = {
+        id: sessionId,
+        title: updates.title || "New Conversation",
+        preview: updates.preview || "",
+        timestamp: new Date(),
+        folderId: updates.folderId,
+        messages: updates.messages || []
+      };
+      localStorage.setItem('chatSessions', JSON.stringify([newSession]));
     }
   },
 
@@ -234,7 +228,7 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
         )
       );
       
-      // Persist to storage (handled by PostgresService)
+      // Always persist to storage, even for sessions without user messages
       await PostgresService.updateSession(sessionId, updates);
     } catch (error) {
       console.error('Error updating session:', error);
