@@ -88,12 +88,12 @@ export function PriceChart({ stockData }: PriceChartProps) {
                 borderColor: 'hsl(var(--border))',
                 borderRadius: '0.5rem',
               }}
-              formatter={(value, name) => {
-                // Format tooltip values
-                if (name === 'open') return ['Open: $' + value.toFixed(2)];
-                if (name === 'high') return ['High: $' + value.toFixed(2)];
-                if (name === 'low') return ['Low: $' + value.toFixed(2)];
-                if (name === 'close') return ['Close: $' + value.toFixed(2)];
+              formatter={(value: any, name: string) => {
+                // Format tooltip values with proper type checking
+                if (name === 'open') return ['Open: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                if (name === 'high') return ['High: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                if (name === 'low') return ['Low: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
+                if (name === 'close') return ['Close: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
                 return [value];
               }}
               labelFormatter={(label) => `Date: ${label}`}

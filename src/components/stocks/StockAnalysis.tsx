@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -7,8 +6,7 @@ import TimeframeSelector from './TimeframeSelector';
 import PriceChart from './PriceChart';
 import VolumeChart from './VolumeChart';
 import TechnicalIndicators from './TechnicalIndicators';
-import { dummyStockData, timeframeOptions, getDefaultIndicators } from './dummyData';
-import type { StockData } from './dummyData';
+import { dummyStockData, timeframeOptions, getDefaultIndicators, StockData } from './dummyData';
 
 export function StockAnalysis() {
   const { toast } = useToast();
