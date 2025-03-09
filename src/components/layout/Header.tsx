@@ -43,7 +43,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
             <span className="sr-only">Toggle sidebar</span>
           </button>
           <NavLink to="/" className="flex items-center">
-            <span className="text-xl font-semibold tracking-tight">n8nChat</span>
+            <span className="text-xl font-semibold tracking-tight">BIOKING</span>
           </NavLink>
         </div>
         

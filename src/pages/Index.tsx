@@ -9,7 +9,7 @@ const Index = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-4xl font-bold">Hi there!</CardTitle>
-          <CardDescription>Welcome to n8nChat - Your AI Assistant</CardDescription>
+          <CardDescription>Welcome to BIOKING - Your AI Assistant</CardDescription>
         </CardHeader>
         <CardContent className="text-center">
           <p className="mb-4">
