@@ -3,40 +3,59 @@ import { useState, useEffect } from 'react';
 import { PlusCircle, Loader2, RefreshCw } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
-import { fetchStocks, Stock } from '@/services/supabaseStockService';
+
+interface Stock {
+  id: string;
+  symbol: string;
+  name: string;
+  current_price: number;
+  change_percent: number;
+  last_updated: string;
+}
 
 export function StockList() {
   const { toast } = useToast();
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const loadStocks = async () => {
+  const fetchStocks = async () => {
     setIsLoading(true);
     try {
-      const stocksData = await fetchStocks();
-      setStocks(stocksData);
-      toast({
-        title: "Success",
-        description: "Stock data loaded successfully.",
-      });
+      // In a real implementation, we'd fetch from Supabase
+      // For now using sample data
+      const sampleStocks: Stock[] = [
+        { id: '1', symbol: 'AAPL', name: 'Apple Inc.', current_price: 172.40, change_percent: 0.8, last_updated: new Date().toISOString() },
+        { id: '2', symbol: 'MSFT', name: 'Microsoft Corp.', current_price: 339.31, change_percent: 1.2, last_updated: new Date().toISOString() },
+        { id: '3', symbol: 'GOOGL', name: 'Alphabet Inc.', current_price: 139.80, change_percent: -0.5, last_updated: new Date().toISOString() },
+        { id: '4', symbol: 'AMZN', name: 'Amazon.com Inc.', current_price: 123.20, change_percent: 2.1, last_updated: new Date().toISOString() },
+        { id: '5', symbol: 'META', name: 'Meta Platforms Inc.', current_price: 308.65, change_percent: 1.7, last_updated: new Date().toISOString() },
+        { id: '6', symbol: 'TSLA', name: 'Tesla Inc.', current_price: 274.39, change_percent: -1.3, last_updated: new Date().toISOString() },
+        { id: '7', symbol: 'NVDA', name: 'NVIDIA Corp.', current_price: 431.60, change_percent: 3.2, last_updated: new Date().toISOString() },
+      ];
+
+      // Simulate API delay
+      setTimeout(() => {
+        setStocks(sampleStocks);
+        setIsLoading(false);
+      }, 1000);
+      
     } catch (error) {
       console.error('Error fetching stocks:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch stocks data from Supabase.",
+        description: "Failed to fetch stocks data.",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
   
   useEffect(() => {
-    loadStocks();
+    fetchStocks();
   }, []);
   
   const handleRefresh = () => {
-    loadStocks();
+    fetchStocks();
   };
   
   return (
@@ -47,7 +66,6 @@ export function StockList() {
           <button
             onClick={handleRefresh}
             className="inline-flex h-9 items-center justify-center rounded-md bg-secondary px-3 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary/80"
-            disabled={isLoading}
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
@@ -65,36 +83,30 @@ export function StockList() {
         </div>
       ) : (
         <div className="overflow-x-auto">
-          {stocks.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No stocks found. Add your first stock to get started.
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="text-right">Price ($)</TableHead>
-                  <TableHead className="text-right">Change (%)</TableHead>
-                  <TableHead className="text-right">Last Updated</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Symbol</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="text-right">Price ($)</TableHead>
+                <TableHead className="text-right">Change (%)</TableHead>
+                <TableHead className="text-right">Last Updated</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {stocks.map((stock) => (
+                <TableRow key={stock.id} className="cursor-pointer hover:bg-muted/50">
+                  <TableCell className="font-medium">{stock.symbol}</TableCell>
+                  <TableCell>{stock.name}</TableCell>
+                  <TableCell className="text-right">${stock.current_price.toFixed(2)}</TableCell>
+                  <TableCell className={`text-right ${stock.change_percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
+                  </TableCell>
+                  <TableCell className="text-right">{new Date(stock.last_updated).toLocaleTimeString()}</TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stocks.map((stock) => (
-                  <TableRow key={stock.id} className="cursor-pointer hover:bg-muted/50">
-                    <TableCell className="font-medium">{stock.symbol}</TableCell>
-                    <TableCell>{stock.name}</TableCell>
-                    <TableCell className="text-right">${stock.current_price?.toFixed(2) || '0.00'}</TableCell>
-                    <TableCell className={`text-right ${parseFloat(String(stock.change_percent)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {parseFloat(String(stock.change_percent)) >= 0 ? '+' : ''}{parseFloat(String(stock.change_percent)).toFixed(2)}%
-                    </TableCell>
-                    <TableCell className="text-right">{new Date(stock.last_updated).toLocaleTimeString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
