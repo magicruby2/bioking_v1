@@ -24,8 +24,9 @@ const renderCandlestick = (
   const color = isPositive ? "hsl(var(--success))" : "hsl(var(--destructive))";
   const barWidth = width * 0.6; // Candlestick body width
   
-  // Center the bar on the data point
-  const barX = x - (barWidth / 2);
+  // Correctly center the candlestick on the x position
+  const centerX = x;
+  const barX = centerX - (barWidth / 2);
   
   // Calculate the y positions for open, close, high, and low
   const highY = y;
@@ -41,9 +42,9 @@ const renderCandlestick = (
     <g key={x + y}>
       {/* Wick line (high to low) */}
       <line
-        x1={x}
+        x1={centerX}
         y1={highY}
-        x2={x}
+        x2={centerX}
         y2={lowY}
         stroke={color}
         strokeWidth={1}
