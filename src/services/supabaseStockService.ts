@@ -1,9 +1,9 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Create a single Supabase client for interacting with your database
-const supabaseUrl = 'https://your-project-url.supabase.co';
-const supabaseKey = process.env.SUPABASE_KEY || 'public-anon-key';
+// Initialize the Supabase client
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface Stock {
@@ -17,8 +17,6 @@ export interface Stock {
 
 export const fetchStocks = async (): Promise<Stock[]> => {
   try {
-    console.log('Fetching stocks from bio_stock schema...');
-    
     const { data, error } = await supabase
       .from('bio_stock')
       .select('*')
@@ -29,73 +27,56 @@ export const fetchStocks = async (): Promise<Stock[]> => {
       throw new Error(error.message);
     }
     
-    console.log('Fetched stocks:', data);
     return data as Stock[];
   } catch (error) {
-    console.error('Exception fetching stocks:', error);
-    // Return empty array instead of throwing to prevent white screen
-    return [];
+    console.error('Failed to fetch stocks:', error);
+    throw error;
   }
 };
 
 export const addStock = async (stock: Omit<Stock, 'id' | 'last_updated'>): Promise<Stock> => {
-  try {
-    const newStock = {
-      ...stock,
-      last_updated: new Date().toISOString(),
-    };
-    
-    const { data, error } = await supabase
-      .from('bio_stock')
-      .insert([newStock])
-      .select()
-      .single();
-    
-    if (error) {
-      console.error('Error adding stock:', error);
-      throw new Error(error.message);
-    }
-    
-    return data as Stock;
-  } catch (error) {
-    console.error('Exception adding stock:', error);
-    throw error;
+  const newStock = {
+    ...stock,
+    last_updated: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase
+    .from('bio_stock')
+    .insert([newStock])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error adding stock:', error);
+    throw new Error(error.message);
   }
+
+  return data as Stock;
 };
 
 export const updateStock = async (id: string, updates: Partial<Stock>): Promise<void> => {
-  try {
-    const { error } = await supabase
-      .from('bio_stock')
-      .update({
-        ...updates,
-        last_updated: new Date().toISOString(),
-      })
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error updating stock:', error);
-      throw new Error(error.message);
-    }
-  } catch (error) {
-    console.error('Exception updating stock:', error);
-    throw error;
+  const { error } = await supabase
+    .from('bio_stock')
+    .update({
+      ...updates,
+      last_updated: new Date().toISOString(),
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating stock:', error);
+    throw new Error(error.message);
   }
 };
 
 export const deleteStock = async (id: string): Promise<void> => {
-  try {
-    const { error } = await supabase
-      .from('bio_stock')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      console.error('Error deleting stock:', error);
-      throw new Error(error.message);
-    }
-  } catch (error) {
-    console.error('Exception deleting stock:', error);
-    throw error;
+  const { error } = await supabase
+    .from('bio_stock')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting stock:', error);
+    throw new Error(error.message);
   }
 };

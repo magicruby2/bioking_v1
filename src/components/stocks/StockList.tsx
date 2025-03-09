@@ -13,15 +13,17 @@ export function StockList() {
   const loadStocks = async () => {
     setIsLoading(true);
     try {
-      console.log('Fetching stocks...');
       const stocksData = await fetchStocks();
-      console.log('Stocks fetched:', stocksData);
       setStocks(stocksData);
+      toast({
+        title: "Success",
+        description: "Stock data loaded successfully.",
+      });
     } catch (error) {
-      console.error('Error in loadStocks:', error);
+      console.error('Error fetching stocks:', error);
       toast({
         title: "Error",
-        description: "Failed to fetch stocks data.",
+        description: "Failed to fetch stocks data from Supabase.",
         variant: "destructive",
       });
     } finally {
@@ -61,37 +63,38 @@ export function StockList() {
         <div className="flex justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : stocks.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <p className="text-muted-foreground">No stocks found in your bio_stock schema.</p>
-          <p className="text-sm text-muted-foreground mt-2">Add your first stock to get started.</p>
-        </div>
       ) : (
         <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Symbol</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead className="text-right">Price ($)</TableHead>
-                <TableHead className="text-right">Change (%)</TableHead>
-                <TableHead className="text-right">Last Updated</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stocks.map((stock) => (
-                <TableRow key={stock.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{stock.symbol}</TableCell>
-                  <TableCell>{stock.name}</TableCell>
-                  <TableCell className="text-right">${stock.current_price.toFixed(2)}</TableCell>
-                  <TableCell className={`text-right ${stock.change_percent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                    {stock.change_percent >= 0 ? '+' : ''}{stock.change_percent.toFixed(2)}%
-                  </TableCell>
-                  <TableCell className="text-right">{new Date(stock.last_updated).toLocaleTimeString()}</TableCell>
+          {stocks.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No stocks found. Add your first stock to get started.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Symbol</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead className="text-right">Price ($)</TableHead>
+                  <TableHead className="text-right">Change (%)</TableHead>
+                  <TableHead className="text-right">Last Updated</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {stocks.map((stock) => (
+                  <TableRow key={stock.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell className="font-medium">{stock.symbol}</TableCell>
+                    <TableCell>{stock.name}</TableCell>
+                    <TableCell className="text-right">${stock.current_price?.toFixed(2) || '0.00'}</TableCell>
+                    <TableCell className={`text-right ${parseFloat(String(stock.change_percent)) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {parseFloat(String(stock.change_percent)) >= 0 ? '+' : ''}{parseFloat(String(stock.change_percent)).toFixed(2)}%
+                    </TableCell>
+                    <TableCell className="text-right">{new Date(stock.last_updated).toLocaleTimeString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       )}
     </div>
