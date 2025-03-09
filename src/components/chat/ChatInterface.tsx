@@ -6,7 +6,26 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import { Message } from './types';
 import { extractResponseText } from './chatUtils';
-import { useChatSessions } from './ChatSessionContext';
+import { useChatSessions, ChatMessage } from './ChatSessionContext';
+
+// Helper function to convert between Message and ChatMessage types
+const convertToChatMessage = (message: Message): ChatMessage => {
+  return {
+    id: message.id,
+    role: message.sender === 'user' ? 'user' : 'assistant',
+    content: message.content,
+    timestamp: message.timestamp.toISOString()
+  };
+};
+
+const convertToMessage = (chatMessage: ChatMessage): Message => {
+  return {
+    id: chatMessage.id || Date.now().toString(),
+    content: chatMessage.content,
+    sender: chatMessage.role,
+    timestamp: new Date(chatMessage.timestamp || new Date())
+  };
+};
 
 export function ChatInterface() {
   const { toast } = useToast();
@@ -29,7 +48,9 @@ export function ChatInterface() {
     if (currentSession) {
       if (currentSession.messages && currentSession.messages.length > 0) {
         console.log("Loading messages from session:", currentSession.messages);
-        setMessages(currentSession.messages);
+        // Convert ChatMessage[] to Message[]
+        const convertedMessages = currentSession.messages.map(convertToMessage);
+        setMessages(convertedMessages);
         setIsSessionInitialized(true);
       } else {
         const initialMessage: Message = {
@@ -44,8 +65,7 @@ export function ChatInterface() {
         
         // Save this initial message to the session
         updateSession(currentSessionId, {
-          messages: [initialMessage],
-          timestamp: new Date()
+          messages: [convertToChatMessage(initialMessage)],
         });
       }
     } else {
@@ -74,14 +94,13 @@ export function ChatInterface() {
         id: newId,
         title: "New Conversation",
         preview: initialMessage.content,
-        timestamp: new Date(),
-        messages: [initialMessage] // Include the initial message in the session
+        createdAt: new Date().toISOString(),
+        messages: [convertToChatMessage(initialMessage)]
       });
     } else if (!isSessionInitialized) {
       // Also ensure we save the initial greeting message when reusing an existing session ID
       updateSession(currentSessionId, {
-        messages: [initialMessage],
-        timestamp: new Date()
+        messages: [convertToChatMessage(initialMessage)],
       });
     }
   }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession]);
@@ -114,11 +133,12 @@ export function ChatInterface() {
       // Initialize the session with the first user message
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
+        // Convert Message[] to ChatMessage[]
+        const chatMessages = updatedMessages.map(convertToChatMessage);
         updateSession(currentSessionId, {
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
-          timestamp: new Date(),
-          messages: updatedMessages // Include current messages in the update
+          messages: chatMessages
         });
       }
       
@@ -140,10 +160,11 @@ export function ChatInterface() {
         setMessages(finalMessages);
         
         if (currentSessionId) {
+          // Convert Message[] to ChatMessage[]
+          const chatMessages = finalMessages.map(convertToChatMessage);
           updateSession(currentSessionId, {
             preview: responseText,
-            timestamp: new Date(),
-            messages: finalMessages
+            messages: chatMessages
           });
         }
       } else {
@@ -171,10 +192,11 @@ export function ChatInterface() {
       setMessages(finalMessages);
       
       if (currentSessionId && isSessionInitialized) {
+        // Convert Message[] to ChatMessage[]
+        const chatMessages = finalMessages.map(convertToChatMessage);
         updateSession(currentSessionId, {
           preview: fallbackMessage.content,
-          timestamp: new Date(),
-          messages: finalMessages
+          messages: chatMessages
         });
       }
     } finally {

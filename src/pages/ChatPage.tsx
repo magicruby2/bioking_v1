@@ -26,7 +26,8 @@ const ChatPageContent = () => {
       id: newId,
       title: "New Conversation",
       preview: "Start a new conversation",
-      timestamp: new Date()
+      createdAt: new Date().toISOString(), // Use createdAt instead of timestamp
+      messages: [] // Initialize with empty messages array
     });
     
     // Set as current session

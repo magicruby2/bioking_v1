@@ -1,9 +1,11 @@
+
 import React, { createContext, useState, useContext, useCallback, useEffect } from 'react';
 
 export type ChatMessage = {
   role: 'user' | 'assistant';
   content: string;
   timestamp?: string;
+  id?: string; // Add id to make it compatible with Message type
 };
 
 export type ChatSession = {
@@ -21,6 +23,7 @@ type ChatSessionContextType = {
   setCurrentSessionId: (sessionId: string | null) => void;
   addSession: (session: ChatSession) => void;
   saveSession: (session: ChatSession) => void;
+  updateSession: (sessionId: string, updates: Partial<ChatSession>) => void; // Add updateSession method
   deleteSession: (sessionId: string) => void;
   clearAllSessions: () => Promise<void>;
   fetchSessions: () => Promise<void>;
@@ -68,8 +71,32 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const addSession = (session: ChatSession) => {
-    setSessions(prevSessions => [...prevSessions, session]);
+    // Ensure the session has a createdAt property if not provided
+    const sessionWithCreatedAt = {
+      ...session,
+      createdAt: session.createdAt || new Date().toISOString()
+    };
+    setSessions(prevSessions => [...prevSessions, sessionWithCreatedAt]);
+    
+    // Save to localStorage
+    const storedSessions = localStorage.getItem('chatSessions');
+    const parsedSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
+    localStorage.setItem('chatSessions', JSON.stringify([...parsedSessions, sessionWithCreatedAt]));
   };
+
+  // Add updateSession method to update specific session fields
+  const updateSession = useCallback((sessionId: string, updates: Partial<ChatSession>) => {
+    setSessions(prevSessions => {
+      const updatedSessions = prevSessions.map(session => 
+        session.id === sessionId 
+          ? { ...session, ...updates } 
+          : session
+      );
+      
+      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      return updatedSessions;
+    });
+  }, []);
 
   const saveSession = useCallback((session: ChatSession) => {
     setSessions(prevSessions => {
@@ -118,6 +145,7 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     setCurrentSessionId,
     addSession,
     saveSession,
+    updateSession, // Add updateSession to the context value
     deleteSession,
     clearAllSessions,
     fetchSessions,
