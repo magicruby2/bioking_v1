@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import StockHeader from '@/components/stocks/StockHeader';
 import PriceChart from '@/components/stocks/PriceChart';
@@ -51,7 +50,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
   const [percentDiff, setPercentDiff] = useState('1.67');
   const [isPositive, setIsPositive] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [isChartCollapsed, setIsChartCollapsed] = useState(false);
+  const [isChartCollapsed, setIsChartCollapsed] = useState(true);
   
   useEffect(() => {
     // Simulate loading
