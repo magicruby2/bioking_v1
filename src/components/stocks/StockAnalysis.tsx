@@ -70,18 +70,19 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
           </CardContent>
         </Card>
       ) : (
-        <div className="flex items-center gap-4 mb-6">
-          {showBackButton && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onBack}
-              className="flex-shrink-0"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          )}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex-shrink-0">
+            {showBackButton && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={onBack}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+            )}
+          </div>
           <StockHeader
             stockSymbol={stockSymbol}
             currentPrice={currentPrice}
