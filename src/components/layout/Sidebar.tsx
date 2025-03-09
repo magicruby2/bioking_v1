@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { Plus, Folder, MessageCircle, RefreshCw, Trash2, X } from 'lucide-react';
+import { Plus, Folder, MessageCircle, RefreshCw, Trash2, X, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
+import { ResearchSection } from '@/components/research';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,9 +24,10 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   
   const { toast } = useToast();
   
-  // Define folders with state to track expansion - default to closed
+  // Define folders with state to track expansion - add research folder
   const [folders, setFolders] = useState([
     { id: 'chat', name: 'Chat', expanded: false },
+    { id: 'research', name: 'Deep Research', expanded: false },
     { id: 'reports', name: 'Reports', expanded: false },
   ]);
   
@@ -145,16 +147,65 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                     className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                   >
                     <div className="flex items-center gap-2">
-                      <Folder className="h-4 w-4" />
+                      {folder.id === 'research' ? (
+                        <Search className="h-4 w-4" />
+                      ) : (
+                        <Folder className="h-4 w-4" />
+                      )}
                       <span className="truncate">{folder.name}</span>
                     </div>
                     <span className="text-xs">{folder.expanded ? '▾' : '▸'}</span>
                   </button>
                   
-                  {folder.expanded && (
+                  {folder.id === 'chat' && folder.expanded && (
                     <div className="ml-4 mt-1 flex flex-col gap-1">
                       {chats
-                        .filter(chat => chat.folderId === folder.id)
+                        .filter(chat => chat.type !== 'research' && chat.type !== 'report')
+                        .map(chat => (
+                          <div 
+                            key={chat.id}
+                            className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-left group ${
+                              currentSessionId === chat.id 
+                                ? 'bg-secondary text-foreground' 
+                                : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                            }`}
+                          >
+                            <button
+                              onClick={() => handleChatSelect(chat.id)}
+                              className="flex items-start gap-2 w-full overflow-hidden"
+                            >
+                              <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                              <div className="flex flex-col items-start w-full overflow-hidden">
+                                <span className="font-medium text-foreground truncate w-full text-left">{chat.title}</span>
+                                <span className="truncate w-full text-xs text-left">{chat.preview}</span>
+                              </div>
+                            </button>
+                            <button
+                              onClick={(e) => handleDeleteSession(e, chat.id)}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity inline-flex h-5 w-5 items-center justify-center rounded-sm hover:bg-destructive/10 hover:text-destructive"
+                              title="Delete chat"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  )}
+                  
+                  {folder.id === 'research' && (
+                    <ResearchSection
+                      expanded={folder.expanded}
+                      onSelectChat={handleChatSelect}
+                      currentSessionId={currentSessionId}
+                      onDeleteSession={handleDeleteSession}
+                    />
+                  )}
+                  
+                  {folder.id === 'reports' && folder.expanded && (
+                    <div className="ml-4 mt-1 flex flex-col gap-1">
+                      {chats
+                        .filter(chat => chat.type === 'report')
                         .map(chat => (
                           <div 
                             key={chat.id}

@@ -77,8 +77,12 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
       ...session,
       id: session.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       createdAt: session.createdAt || new Date().toISOString(),
-      // Set default folder if using report type
-      folderId: session.type === 'report' ? 'reports' : 'chat'
+      // Set default folder based on type
+      folderId: session.type === 'report' 
+        ? 'reports' 
+        : session.type === 'research'
+          ? 'research'
+          : 'chat'
     };
     
     // Check if the session contains a user message
@@ -110,9 +114,15 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
       // Update the session
       const updatedSession = { ...sessionToUpdate, ...updates };
       
-      // If the type is being updated to 'report', update the folderId
-      if (updates.type === 'report' && (!sessionToUpdate.folderId || sessionToUpdate.folderId === 'chat')) {
-        updatedSession.folderId = 'reports';
+      // If the type is being updated, update the folderId accordingly
+      if (updates.type) {
+        if (updates.type === 'report') {
+          updatedSession.folderId = 'reports';
+        } else if (updates.type === 'research') {
+          updatedSession.folderId = 'research';
+        } else {
+          updatedSession.folderId = 'chat';
+        }
       }
       
       // Update in localStorage
@@ -160,7 +170,11 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     // Ensure folderId is set correctly based on type
     const sessionToSave = {
       ...session,
-      folderId: session.type === 'report' ? 'reports' : 'chat'
+      folderId: session.type === 'report' 
+        ? 'reports' 
+        : session.type === 'research'
+          ? 'research'
+          : 'chat'
     };
     
     if (existingSessionIndex !== -1) {
