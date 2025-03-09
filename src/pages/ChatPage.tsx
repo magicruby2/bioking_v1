@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
 import { ChatSessionProvider } from '@/components/chat/ChatSessionContext';
+import { Loader2 } from 'lucide-react';
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
