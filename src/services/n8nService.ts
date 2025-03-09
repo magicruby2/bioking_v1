@@ -5,7 +5,7 @@ interface WebhookResponse {
   error?: string;
 }
 
-export type WebhookType = 'chat' | 'stocks' | 'news';
+export type WebhookType = 'chat' | 'stocks' | 'news' | 'stocksOverview';
 
 const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
 
@@ -31,7 +31,8 @@ export class N8nService {
     const endpoints = {
       chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
       stocks: 'webhook-test/2', 
-      news: 'webhook-test/3'
+      news: 'webhook-test/3',
+      stocksOverview: 'webhook-test/e7811fb4-17f2-4660-9f96-be1cbbebe029'
     };
     
     return `${N8N_BASE_URL}/${endpoints[type]}`;
@@ -107,6 +108,17 @@ export class N8nService {
    */
   public static async fetchNewsData(category: string, count: number): Promise<WebhookResponse> {
     return N8nService.getInstance().sendWebhookRequest('news', { category, count });
+  }
+  
+  /**
+   * Sends stock overview page visit information to the n8n webhook
+   */
+  public static async sendStocksOverviewVisit(userAgent: string): Promise<WebhookResponse> {
+    return N8nService.getInstance().sendWebhookRequest('stocksOverview', { 
+      timestamp: new Date().toISOString(),
+      page: 'stocks-overview',
+      userAgent
+    });
   }
 }
 
