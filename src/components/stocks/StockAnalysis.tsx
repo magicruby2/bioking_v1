@@ -1,8 +1,9 @@
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import StockHeader from '@/components/stocks/StockHeader';
 import PriceChart from '@/components/stocks/PriceChart';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 import { 
   Card, 
   CardContent, 
@@ -39,9 +40,11 @@ const dummyStockData: StockData[] = [
 
 interface StockAnalysisProps {
   stockSymbol?: string;
+  showBackButton?: boolean;
+  onBack?: () => void;
 }
 
-const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => {
+const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, onBack }: StockAnalysisProps) => {
   const [stockSymbol, setStockSymbol] = useState(propStockSymbol || 'AAPL');
   const [currentPrice, setCurrentPrice] = useState('150.00');
   const [priceDiff, setPriceDiff] = useState('2.50');
@@ -57,7 +60,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
   }, []);
   
   return (
-    <div className="container py-8">
+    <div className="py-4">
       {loading ? (
         <Card className="mb-8">
           <CardContent className="p-4">
@@ -67,14 +70,27 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
           </CardContent>
         </Card>
       ) : (
-        <StockHeader
-          stockSymbol={stockSymbol}
-          currentPrice={currentPrice}
-          priceDiff={priceDiff}
-          percentDiff={percentDiff}
-          isPositive={isPositive}
-          hideSearch={true}
-        />
+        <div className="flex items-center gap-4 mb-6">
+          {showBackButton && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onBack}
+              className="flex-shrink-0"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
+            </Button>
+          )}
+          <StockHeader
+            stockSymbol={stockSymbol}
+            currentPrice={currentPrice}
+            priceDiff={priceDiff}
+            percentDiff={percentDiff}
+            isPositive={isPositive}
+            hideSearch={true}
+          />
+        </div>
       )}
       
       {loading ? (

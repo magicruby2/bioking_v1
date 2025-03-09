@@ -26,7 +26,7 @@ export function StockHeader({
   hideSearch = false
 }: StockHeaderProps) {
   return (
-    <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 flex-1">
       <div>
         <h1 className="text-2xl font-bold">{stockSymbol}</h1>
         <div className="mt-1 flex items-center">

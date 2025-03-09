@@ -29,19 +29,10 @@ const StockDetailPage = () => {
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <main className="h-full">
-          <div className="container py-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mb-4" 
-              onClick={handleBack}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <StockAnalysis stockSymbol={symbol} />
+          <div className="container py-2">
+            <StockAnalysis stockSymbol={symbol} showBackButton={true} onBack={handleBack} />
           </div>
         </main>
       </div>
