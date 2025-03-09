@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -20,18 +19,36 @@ export function ChatInterface() {
     sessions
   } = useChatSessions();
   
-  // Generate a session ID when the component is mounted
+  // Load messages when currentSessionId changes
   useEffect(() => {
-    const storedId = localStorage.getItem('chatSessionId');
+    if (!currentSessionId) return;
     
-    // If we already have a session ID stored, load that session
-    if (storedId && currentSessionId) {
-      const existingSession = sessions.find(session => session.id === currentSessionId);
-      if (existingSession) {
-        console.log("Loading existing session", existingSession);
-        return;
+    // Find the current session
+    const currentSession = sessions.find(session => session.id === currentSessionId);
+    
+    if (currentSession) {
+      // If the session has stored messages, use them
+      if (currentSession.messages && currentSession.messages.length > 0) {
+        console.log("Loading messages from session:", currentSession.messages);
+        setMessages(currentSession.messages);
+      } else {
+        // Otherwise, initialize with the welcome message
+        setMessages([{
+          id: '1',
+          content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
+          sender: 'assistant',
+          timestamp: new Date()
+        }]);
       }
+    } else {
+      console.log("Session not found:", currentSessionId);
     }
+  }, [currentSessionId, sessions]);
+  
+  // Add default welcome message or create new session if needed
+  useEffect(() => {
+    // If we already have messages, don't add the welcome message
+    if (messages.length > 0) return;
     
     // Add default welcome message
     setMessages([{
@@ -54,7 +71,7 @@ export function ChatInterface() {
         timestamp: new Date()
       });
     }
-  }, [currentSessionId, addSession, sessions]);
+  }, [currentSessionId, addSession, messages.length]);
   
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
@@ -111,7 +128,8 @@ export function ChatInterface() {
         if (currentSessionId) {
           updateSession(currentSessionId, {
             preview: responseText,
-            timestamp: new Date()
+            timestamp: new Date(),
+            messages: updatedMessages
           });
         }
       } else {
@@ -144,7 +162,8 @@ export function ChatInterface() {
       if (currentSessionId) {
         updateSession(currentSessionId, {
           preview: fallbackMessage.content,
-          timestamp: new Date()
+          timestamp: new Date(),
+          messages: updatedMessages
         });
       }
     } finally {

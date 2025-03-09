@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Message, ChatHistory } from './types';
 
@@ -50,7 +49,7 @@ const PostgresService = {
           messages: session.messages ? session.messages.map((msg: any) => ({
             ...msg,
             timestamp: new Date(msg.timestamp)
-          })) : undefined
+          })) : []
         }));
       } catch (error) {
         console.error('Error parsing saved chat sessions:', error);
@@ -149,8 +148,14 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
 
   const addSession = async (session: ChatSession) => {
     try {
-      await PostgresService.addSession(session);
-      setSessions(prev => [session, ...prev]);
+      // Initialize empty messages array if not provided
+      const sessionWithMessages = {
+        ...session,
+        messages: session.messages || []
+      };
+      
+      await PostgresService.addSession(sessionWithMessages);
+      setSessions(prev => [sessionWithMessages, ...prev]);
       setCurrentSessionId(session.id);
     } catch (error) {
       console.error('Error adding session:', error);
