@@ -83,14 +83,16 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol, showBackButton = false, o
               </Button>
             )}
           </div>
-          <StockHeader
-            stockSymbol={stockSymbol}
-            currentPrice={currentPrice}
-            priceDiff={priceDiff}
-            percentDiff={percentDiff}
-            isPositive={isPositive}
-            hideSearch={true}
-          />
+          <div className="ml-auto">
+            <StockHeader
+              stockSymbol={stockSymbol}
+              currentPrice={currentPrice}
+              priceDiff={priceDiff}
+              percentDiff={percentDiff}
+              isPositive={isPositive}
+              hideSearch={true}
+            />
+          </div>
         </div>
       )}
       
