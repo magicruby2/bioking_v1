@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from 'react';
-import { Send, RefreshCw, Search, FileText } from 'lucide-react';
+import { Send, RefreshCw, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useChatSessions } from './ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
+import { ResearchModeToggle } from '@/components/research';
 
 interface ChatInputProps {
   onSendMessage: (message: string, mode: 'research' | 'report' | null) => void;
@@ -42,9 +42,7 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     if (currentSessionId) {
       const currentSession = sessions.find(session => session.id === currentSessionId);
       
-      // If there are messages in the session and trying to change or unselect the mode
       if (currentSession && currentSession.messages.length > 1) {
-        // When trying to change from report to no mode, or from any mode to another mode
         if ((selectedMode === 'report' && mode === 'report') || 
             (selectedMode === 'research' && mode === 'research') ||
             (selectedMode !== mode)) {
@@ -69,16 +67,11 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
     <div className="border-t border-border/40 bg-background p-4 md:p-6">
       <div className="mx-auto max-w-3xl">
         <div className="mb-2 flex gap-2">
-          <Button
+          <ResearchModeToggle 
+            isActive={selectedMode === 'research'}
             onClick={() => toggleMode('research')}
-            variant={selectedMode === 'research' ? 'default' : 'outline'}
-            className="flex items-center gap-2"
-            type="button"
-            size="sm"
-          >
-            <Search className="h-4 w-4" />
-            Deep Research
-          </Button>
+            disabled={isLoading}
+          />
           <Button
             onClick={() => toggleMode('report')}
             variant={selectedMode === 'report' ? 'default' : 'outline'}
