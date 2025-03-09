@@ -17,16 +17,15 @@ const ChatPageContent = () => {
   
   const handleNewChat = () => {
     console.log('Creating new chat...');
-    // Generate a new session ID
-    const newId = Math.random().toString(36).substring(2, 15) + 
-                 Math.random().toString(36).substring(2, 15);
+    // Generate a new session ID with a more consistent format
+    const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     
     // Create a new session
     addSession({
       id: newId,
       title: "New Conversation",
       preview: "Start a new conversation",
-      createdAt: new Date().toISOString(), // Use createdAt instead of timestamp
+      createdAt: new Date().toISOString(),
       messages: [] // Initialize with empty messages array
     });
     

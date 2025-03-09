@@ -22,7 +22,7 @@ const convertToMessage = (chatMessage: ChatMessage): Message => {
   return {
     id: chatMessage.id || Date.now().toString(),
     content: chatMessage.content,
-    sender: chatMessage.role,
+    sender: chatMessage.role === 'user' ? 'user' : 'assistant',
     timestamp: new Date(chatMessage.timestamp || new Date())
   };
 };
@@ -35,10 +35,20 @@ export function ChatInterface() {
   
   const { 
     currentSessionId, 
-    addSession, 
+    addSession,
+    setCurrentSessionId,
     updateSession,
     sessions
   } = useChatSessions();
+  
+  // Create a new session ID if one doesn't exist
+  useEffect(() => {
+    if (!currentSessionId) {
+      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      setCurrentSessionId(newSessionId);
+      console.log("Created new session ID:", newSessionId);
+    }
+  }, [currentSessionId, setCurrentSessionId]);
   
   useEffect(() => {
     if (!currentSessionId) return;
@@ -86,8 +96,8 @@ export function ChatInterface() {
     setMessages([initialMessage]);
     
     if (!currentSessionId) {
-      const newId = Math.random().toString(36).substring(2, 15) + 
-                   Math.random().toString(36).substring(2, 15);
+      const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      console.log("Creating new session with ID:", newId);
       
       // Create new session with the initial greeting message
       addSession({
@@ -97,16 +107,26 @@ export function ChatInterface() {
         createdAt: new Date().toISOString(),
         messages: [convertToChatMessage(initialMessage)]
       });
+      
+      // Set this as the current session
+      setCurrentSessionId(newId);
     } else if (!isSessionInitialized) {
       // Also ensure we save the initial greeting message when reusing an existing session ID
       updateSession(currentSessionId, {
         messages: [convertToChatMessage(initialMessage)],
       });
     }
-  }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession]);
+  }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession, setCurrentSessionId]);
   
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
+    
+    // Ensure we have a valid session ID
+    if (!currentSessionId) {
+      const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      setCurrentSessionId(newId);
+      console.log("Created new session ID before sending message:", newId);
+    }
     
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -142,7 +162,8 @@ export function ChatInterface() {
         });
       }
       
-      const response = await N8nService.sendChatMessage(inputValue, currentSessionId || '');
+      console.log("Sending message with session ID:", currentSessionId);
+      const response = await N8nService.sendChatMessage(inputValue, currentSessionId);
       
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       

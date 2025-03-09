@@ -23,7 +23,7 @@ type ChatSessionContextType = {
   setCurrentSessionId: (sessionId: string | null) => void;
   addSession: (session: ChatSession) => void;
   saveSession: (session: ChatSession) => void;
-  updateSession: (sessionId: string, updates: Partial<ChatSession>) => void; // Add updateSession method
+  updateSession: (sessionId: string, updates: Partial<ChatSession>) => void;
   deleteSession: (sessionId: string) => void;
   clearAllSessions: () => Promise<void>;
   fetchSessions: () => Promise<void>;
@@ -71,20 +71,24 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
   }, []);
 
   const addSession = (session: ChatSession) => {
-    // Ensure the session has a createdAt property if not provided
+    // Ensure the session has a valid ID and createdAt property
     const sessionWithCreatedAt = {
       ...session,
+      id: session.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       createdAt: session.createdAt || new Date().toISOString()
     };
+    
     setSessions(prevSessions => [...prevSessions, sessionWithCreatedAt]);
     
     // Save to localStorage
     const storedSessions = localStorage.getItem('chatSessions');
     const parsedSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
     localStorage.setItem('chatSessions', JSON.stringify([...parsedSessions, sessionWithCreatedAt]));
+    
+    // Return the session ID in case it was generated
+    return sessionWithCreatedAt.id;
   };
 
-  // Add updateSession method to update specific session fields
   const updateSession = useCallback((sessionId: string, updates: Partial<ChatSession>) => {
     setSessions(prevSessions => {
       const updatedSessions = prevSessions.map(session => 
@@ -93,7 +97,20 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
           : session
       );
       
-      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      // Also update in localStorage (including sessions not currently visible in UI)
+      const storedSessions = localStorage.getItem('chatSessions');
+      if (storedSessions) {
+        const allStoredSessions = JSON.parse(storedSessions) as ChatSession[];
+        const updatedStoredSessions = allStoredSessions.map(session =>
+          session.id === sessionId
+            ? { ...session, ...updates }
+            : session
+        );
+        localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
+      } else {
+        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      }
+      
       return updatedSessions;
     });
   }, []);
@@ -128,9 +145,22 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
   const deleteSession = (sessionId: string) => {
     setSessions(prevSessions => {
       const updatedSessions = prevSessions.filter(session => session.id !== sessionId);
-      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
+      
+      // Also remove from localStorage
+      const storedSessions = localStorage.getItem('chatSessions');
+      if (storedSessions) {
+        const allStoredSessions = JSON.parse(storedSessions) as ChatSession[];
+        const updatedStoredSessions = allStoredSessions.filter(session => session.id !== sessionId);
+        localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
+      }
+      
       return updatedSessions;
     });
+    
+    // If the deleted session was the current one, clear the current session
+    if (currentSessionId === sessionId) {
+      setCurrentSessionId(null);
+    }
   };
 
   const clearAllSessions = async () => {
@@ -145,7 +175,7 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
     setCurrentSessionId,
     addSession,
     saveSession,
-    updateSession, // Add updateSession to the context value
+    updateSession,
     deleteSession,
     clearAllSessions,
     fetchSessions,

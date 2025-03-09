@@ -1,4 +1,3 @@
-
 interface WebhookResponse {
   success: boolean;
   data?: any;
@@ -93,7 +92,9 @@ export class N8nService {
    * Sends a chat message to the n8n webhook
    */
   public static async sendChatMessage(message: string, sessionId: string): Promise<WebhookResponse> {
-    return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId }, 'GET');
+    // Ensure sessionId is not empty
+    const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId: safeSessionId }, 'GET');
   }
   
   /**
