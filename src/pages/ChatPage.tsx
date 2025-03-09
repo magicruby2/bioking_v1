@@ -5,10 +5,12 @@ import Sidebar from '@/components/layout/Sidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
 import { ChatSessionProvider, useChatSessions } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const ChatPageContent = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const { setCurrentSessionId, addSession } = useChatSessions();
+  const { setCurrentSessionId, addSession, usePostgres, setUsePostgres } = useChatSessions();
   const { toast } = useToast();
   
   const toggleSidebar = () => {
@@ -43,6 +45,14 @@ const ChatPageContent = () => {
     });
   };
   
+  const togglePostgres = () => {
+    setUsePostgres(!usePostgres);
+    toast({
+      title: `Database Changed`,
+      description: `Now using ${!usePostgres ? 'PostgreSQL' : 'localStorage'} for data storage`,
+    });
+  };
+  
   return (
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
@@ -51,6 +61,18 @@ const ChatPageContent = () => {
         <Sidebar isOpen={isSidebarOpen} onNewChat={handleNewChat} />
         
         <main className="flex-1 w-full">
+          <div className="bg-muted/50 p-2 flex justify-end items-center">
+            <div className="flex items-center space-x-2">
+              <Switch 
+                id="postgres-mode" 
+                checked={usePostgres}
+                onCheckedChange={togglePostgres}
+              />
+              <Label htmlFor="postgres-mode" className="text-sm">
+                {usePostgres ? "PostgreSQL" : "LocalStorage"}
+              </Label>
+            </div>
+          </div>
           <ChatInterface />
         </main>
       </div>

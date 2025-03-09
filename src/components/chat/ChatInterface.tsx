@@ -7,6 +7,7 @@ import ChatInput from './ChatInput';
 import { Message } from './types';
 import { extractResponseText } from './chatUtils';
 import { useChatSessions, ChatMessage } from './ChatSessionContext';
+import ChatDbService from '@/services/chatDbService';
 
 const convertToChatMessage = (message: Message): ChatMessage => {
   return {
@@ -40,7 +41,8 @@ export function ChatInterface() {
     updateSession,
     sessions,
     saveSession,
-    fetchSessions
+    fetchSessions,
+    usePostgres
   } = useChatSessions();
   
   useEffect(() => {
@@ -72,7 +74,7 @@ export function ChatInterface() {
       } else {
         const initialMessage: Message = {
           id: '1',
-          content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
+          content: "Hello! I'm your AI assistant. How can I help you today?",
           sender: 'assistant' as const,
           timestamp: new Date()
         };
@@ -95,7 +97,7 @@ export function ChatInterface() {
     
     const initialMessage: Message = {
       id: '1',
-      content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
+      content: "Hello! I'm your AI assistant. How can I help you today?",
       sender: 'assistant' as const,
       timestamp: new Date()
     };
@@ -167,37 +169,46 @@ export function ChatInterface() {
       }
       
       console.log("Sending message with session ID:", currentSessionId);
-      const response = await N8nService.sendChatMessage(inputValue, currentSessionId);
+      
+      let responseText = '';
+      
+      if (usePostgres) {
+        // Use PostgreSQL
+        responseText = await ChatDbService.processMessage(inputValue);
+      } else {
+        // Use n8n
+        const response = await N8nService.sendChatMessage(inputValue, currentSessionId);
+        
+        if (response.success) {
+          responseText = extractResponseText(response.data);
+        } else {
+          throw new Error(response.error || 'Failed to get response');
+        }
+      }
       
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
-      if (response.success) {
-        const responseText = extractResponseText(response.data);
-        
-        const assistantMessage: Message = {
-          id: (Date.now() + 2).toString(),
-          content: responseText,
-          sender: 'assistant',
-          timestamp: new Date()
+      const assistantMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        content: responseText,
+        sender: 'assistant',
+        timestamp: new Date()
+      };
+      
+      const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
+      setMessages(finalMessages);
+      
+      if (currentSessionId) {
+        const chatMessages = finalMessages.map(convertToChatMessage);
+        const sessionToUpdate = {
+          id: currentSessionId,
+          title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
+          preview: responseText,
+          createdAt: new Date().toISOString(),
+          messages: chatMessages
         };
-        
-        const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
-        setMessages(finalMessages);
-        
-        if (currentSessionId) {
-          const chatMessages = finalMessages.map(convertToChatMessage);
-          const sessionToUpdate = {
-            id: currentSessionId,
-            title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
-            preview: responseText,
-            createdAt: new Date().toISOString(),
-            messages: chatMessages
-          };
-          saveSession(sessionToUpdate);
-          await fetchSessions();
-        }
-      } else {
-        throw new Error(response.error || 'Failed to get response');
+        saveSession(sessionToUpdate);
+        await fetchSessions();
       }
     } catch (error) {
       console.error('Error in chat:', error);
@@ -212,7 +223,7 @@ export function ChatInterface() {
       
       const fallbackMessage: Message = {
         id: (Date.now() + 2).toString(),
-        content: "I'm having trouble connecting to the n8n workflow. This is a simulated response until the connection is restored. How else can I assist you?",
+        content: "I'm having trouble connecting. This is a simulated response. How else can I assist you?",
         sender: 'assistant',
         timestamp: new Date()
       };
