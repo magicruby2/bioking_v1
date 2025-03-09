@@ -114,11 +114,12 @@ export class N8nService {
    * Sends stock overview page visit information to the n8n webhook
    */
   public static async sendStocksOverviewVisit(userAgent: string): Promise<WebhookResponse> {
+    // Use GET method instead of POST (default)
     return N8nService.getInstance().sendWebhookRequest('stocksOverview', { 
       timestamp: new Date().toISOString(),
       page: 'stocks-overview',
       userAgent
-    });
+    }, 'GET');
   }
 }
 
