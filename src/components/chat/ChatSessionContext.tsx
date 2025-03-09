@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Message, ChatHistory } from './types';
 
 export interface ChatSession {
   id: string;
@@ -7,6 +8,7 @@ export interface ChatSession {
   preview: string;
   timestamp: Date;
   folderId?: string;
+  messages?: Message[];
 }
 
 interface ChatSessionContextType {
@@ -44,7 +46,11 @@ const PostgresService = {
         // Convert string timestamps back to Date objects
         return parsedSessions.map((session: any) => ({
           ...session,
-          timestamp: new Date(session.timestamp)
+          timestamp: new Date(session.timestamp),
+          messages: session.messages ? session.messages.map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          })) : undefined
         }));
       } catch (error) {
         console.error('Error parsing saved chat sessions:', error);
@@ -145,6 +151,7 @@ export const ChatSessionProvider: React.FC<{ children: React.ReactNode }> = ({ c
     try {
       await PostgresService.addSession(session);
       setSessions(prev => [session, ...prev]);
+      setCurrentSessionId(session.id);
     } catch (error) {
       console.error('Error adding session:', error);
     }

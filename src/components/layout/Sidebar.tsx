@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw } from 'lucide-react';
+import { Plus, Folder, FolderPlus, MessageCircle, RefreshCw, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface ChatFolder {
   id: string;
@@ -17,7 +18,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
-  const { sessions: chats, setCurrentSessionId, fetchSessions, isLoading } = useChatSessions();
+  const { 
+    sessions: chats, 
+    setCurrentSessionId, 
+    fetchSessions, 
+    isLoading, 
+    currentSessionId,
+    clearAllSessions
+  } = useChatSessions();
+  
   const { toast } = useToast();
   
   const [folders, setFolders] = useState<ChatFolder[]>([
@@ -68,6 +77,17 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
       });
     }
   };
+
+  const handleClearAllSessions = async () => {
+    if (confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
+      await clearAllSessions();
+      toast({
+        title: "History cleared",
+        description: "All chat sessions have been deleted",
+      });
+      onNewChat(); // Create a new chat after clearing
+    }
+  };
   
   return (
     <aside className={cn(
@@ -77,14 +97,25 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
       <div className="flex h-full flex-col">
         <div className="flex h-16 shrink-0 items-center justify-between px-4 md:px-6">
           <span className="text-lg font-semibold">Chat History</span>
-          <button
-            onClick={handleRefreshSessions}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-            disabled={isLoading}
-          >
-            <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-            <span className="sr-only">Refresh</span>
-          </button>
+          <div className="flex items-center space-x-1">
+            <button
+              onClick={handleRefreshSessions}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              disabled={isLoading}
+              title="Refresh chat history"
+            >
+              <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <span className="sr-only">Refresh</span>
+            </button>
+            <button
+              onClick={handleClearAllSessions}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              title="Clear all chat history"
+            >
+              <Trash2 className="h-4 w-4" />
+              <span className="sr-only">Clear history</span>
+            </button>
+          </div>
         </div>
         
         <div className="px-4 md:px-6 mt-4">
@@ -162,7 +193,11 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                           <button
                             key={chat.id}
                             onClick={() => handleChatSelect(chat.id)}
-                            className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm ${
+                              currentSessionId === chat.id 
+                                ? 'bg-secondary text-foreground' 
+                                : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                            }`}
                           >
                             <MessageCircle className="h-4 w-4 shrink-0" />
                             <span className="truncate">{chat.title}</span>
@@ -188,7 +223,11 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                       <button
                         key={chat.id}
                         onClick={() => handleChatSelect(chat.id)}
-                        className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
+                        className={`flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm ${
+                          currentSessionId === chat.id 
+                            ? 'bg-secondary text-foreground' 
+                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                        }`}
                       >
                         <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
                         <div className="flex flex-col items-start">
