@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
 import ChatInterface from '@/components/chat/ChatInterface';
+import { ChatSessionProvider } from '@/components/chat/ChatSessionContext';
 
 const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -20,17 +21,19 @@ const ChatPage = () => {
   };
   
   return (
-    <div className="flex h-screen flex-col">
-      <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
-      
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar isOpen={isSidebarOpen} onNewChat={handleNewChat} />
+    <ChatSessionProvider>
+      <div className="flex h-screen flex-col">
+        <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
         
-        <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
-          <ChatInterface />
-        </main>
+        <div className="flex flex-1 overflow-hidden">
+          <Sidebar isOpen={isSidebarOpen} onNewChat={handleNewChat} />
+          
+          <main className={`flex-1 transition-all duration-300 ${isSidebarOpen ? 'md:ml-64' : ''}`}>
+            <ChatInterface />
+          </main>
+        </div>
       </div>
-    </div>
+    </ChatSessionProvider>
   );
 };
 

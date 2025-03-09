@@ -2,14 +2,7 @@
 import { useState } from 'react';
 import { Plus, Folder, FolderPlus, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-interface ChatEntry {
-  id: string;
-  title: string;
-  preview: string;
-  timestamp: Date;
-  folderId?: string;
-}
+import { useChatSessions, ChatSession } from '@/components/chat/ChatSessionContext';
 
 interface ChatFolder {
   id: string;
@@ -23,39 +16,11 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
+  const { sessions: chats, setCurrentSessionId } = useChatSessions();
+  
   const [folders, setFolders] = useState<ChatFolder[]>([
     { id: 'f1', name: 'Work Related', expanded: true },
     { id: 'f2', name: 'Personal Projects', expanded: false },
-  ]);
-  
-  const [chats, setChats] = useState<ChatEntry[]>([
-    { 
-      id: 'c1', 
-      title: 'Product Development', 
-      preview: 'How to implement agile methodology...', 
-      timestamp: new Date(2023, 9, 10),
-      folderId: 'f1' 
-    },
-    { 
-      id: 'c2', 
-      title: 'Marketing Strategy', 
-      preview: 'Analyzing competitors for Q4...', 
-      timestamp: new Date(2023, 9, 8),
-      folderId: 'f1' 
-    },
-    { 
-      id: 'c3', 
-      title: 'Vacation Planning', 
-      preview: 'Best places to visit in December...', 
-      timestamp: new Date(2023, 9, 5) 
-    },
-    { 
-      id: 'c4', 
-      title: 'Learning React', 
-      preview: 'How to use hooks effectively...', 
-      timestamp: new Date(2023, 9, 1),
-      folderId: 'f2' 
-    },
   ]);
   
   const toggleFolder = (folderId: string) => {
@@ -80,6 +45,10 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
       setNewFolderName('');
       setShowFolderInput(false);
     }
+  };
+
+  const handleChatSelect = (chatId: string) => {
+    setCurrentSessionId(chatId);
   };
   
   return (
@@ -159,6 +128,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                     .map(chat => (
                       <button
                         key={chat.id}
+                        onClick={() => handleChatSelect(chat.id)}
                         className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
                       >
                         <MessageCircle className="h-4 w-4 shrink-0" />
@@ -179,6 +149,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
               .map(chat => (
                 <button
                   key={chat.id}
+                  onClick={() => handleChatSelect(chat.id)}
                   className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
                 >
                   <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
