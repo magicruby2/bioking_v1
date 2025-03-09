@@ -1,3 +1,4 @@
+
 import { Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { 
   ComposedChart, 
@@ -132,7 +133,7 @@ export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }:
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="flex items-center justify-center h-12 transition-all duration-300">
+        <div className="flex items-center justify-center h-6 transition-all duration-300">
         </div>
       )}
     </div>
