@@ -133,7 +133,6 @@ export function PriceChart({ stockData, isCollapsed = false, onToggleCollapse }:
         </div>
       ) : (
         <div className="flex items-center justify-center h-12 transition-all duration-300">
-          <p className="text-sm text-muted-foreground">Click to expand chart</p>
         </div>
       )}
     </div>
