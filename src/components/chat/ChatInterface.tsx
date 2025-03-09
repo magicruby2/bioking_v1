@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -144,13 +145,17 @@ export function ChatInterface() {
     setMessages(updatedMessages);
     setIsLoading(true);
     
+    // Create and add a waiting message with an empty content string
     const waitingMessageId = (Date.now() + 1).toString();
-    setMessages(prev => [...prev, {
+    const waitingMessage: Message = {
       id: waitingMessageId,
-      content: "",
+      content: '',
       sender: 'assistant',
       timestamp: new Date()
-    }]);
+    };
+    
+    // Add the waiting message to the messages array
+    setMessages(prev => [...prev, waitingMessage]);
     
     try {
       if (!isSessionInitialized && currentSessionId) {
@@ -184,6 +189,7 @@ export function ChatInterface() {
         response = await N8nService.sendChatMessage(inputValue, currentSessionId);
       }
       
+      // Only remove the waiting message after we get a response
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       if (response.success) {
@@ -222,6 +228,7 @@ export function ChatInterface() {
     } catch (error) {
       console.error('Error in chat:', error);
       
+      // Only remove the waiting message after handling the error
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
       toast({

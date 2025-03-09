@@ -41,6 +41,8 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   };
 
   const toggleMode = (mode: 'research' | 'report') => {
+    if (isLoading) return; // Prevent mode changes while loading
+    
     if (currentSessionId) {
       const currentSession = sessions.find(session => session.id === currentSessionId);
       
