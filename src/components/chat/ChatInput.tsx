@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Send, RefreshCw, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +34,6 @@ export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   const handleSendMessage = () => {
     if (!inputValue.trim() || isLoading) return;
     
-    // Pass the selected mode to the parent component
     onSendMessage(inputValue, selectedMode);
     setInputValue('');
   };
