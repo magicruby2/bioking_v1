@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from 'react';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Scatter } from 'recharts';
-import { RefreshCw, Calendar, Search, ChartCandlestick } from 'lucide-react';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { RefreshCw, Calendar, Search } from 'lucide-react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,46 +8,22 @@ interface StockData {
   date: string;
   price: number;
   volume: number;
-  high: number;
-  low: number;
-  open: number;
-  close: number;
 }
 
 const dummyStockData: StockData[] = [
-  { date: '2023-01-01', price: 150.21, volume: 1520000, open: 149.50, close: 150.21, high: 151.20, low: 148.90 },
-  { date: '2023-01-02', price: 152.36, volume: 1620000, open: 150.30, close: 152.36, high: 153.10, low: 150.10 },
-  { date: '2023-01-03', price: 148.97, volume: 1820000, open: 152.00, close: 148.97, high: 152.50, low: 148.20 },
-  { date: '2023-01-04', price: 150.42, volume: 1420000, open: 149.00, close: 150.42, high: 151.30, low: 148.80 },
-  { date: '2023-01-05', price: 153.17, volume: 1920000, open: 150.50, close: 153.17, high: 154.20, low: 150.10 },
-  { date: '2023-01-06', price: 156.78, volume: 2120000, open: 153.20, close: 156.78, high: 157.50, low: 153.00 },
-  { date: '2023-01-07', price: 155.23, volume: 1720000, open: 156.80, close: 155.23, high: 157.00, low: 154.50 },
-  { date: '2023-01-08', price: 158.46, volume: 1990000, open: 155.50, close: 158.46, high: 159.20, low: 155.10 },
-  { date: '2023-01-09', price: 160.12, volume: 2220000, open: 158.50, close: 160.12, high: 161.30, low: 158.20 },
-  { date: '2023-01-10', price: 161.87, volume: 2320000, open: 160.20, close: 161.87, high: 162.50, low: 159.90 },
+  { date: '2023-01-01', price: 150.21, volume: 1520000 },
+  { date: '2023-01-02', price: 152.36, volume: 1620000 },
+  { date: '2023-01-03', price: 148.97, volume: 1820000 },
+  { date: '2023-01-04', price: 150.42, volume: 1420000 },
+  { date: '2023-01-05', price: 153.17, volume: 1920000 },
+  { date: '2023-01-06', price: 156.78, volume: 2120000 },
+  { date: '2023-01-07', price: 155.23, volume: 1720000 },
+  { date: '2023-01-08', price: 158.46, volume: 1990000 },
+  { date: '2023-01-09', price: 160.12, volume: 2220000 },
+  { date: '2023-01-10', price: 161.87, volume: 2320000 },
 ];
 
 const timeframeOptions = ['1D', '1W', '1M', '3M', '1Y', 'YTD'];
-
-// Custom rendering function for candlestick chart
-const renderCandlestick = (props: any) => {
-  const { x, y, width, height, open, close, low, high } = props;
-  const isPositive = close > open;
-  const color = isPositive ? "hsl(var(--success))" : "hsl(var(--destructive))";
-  const bodyY = isPositive ? y + (height * (high - close) / (high - low)) : y + (height * (high - open) / (high - low));
-  const bodyHeight = isPositive 
-    ? height * (close - open) / (high - low) 
-    : height * (open - close) / (high - low);
-  
-  return (
-    <g key={`candlestick-${x}`}>
-      {/* Wick line */}
-      <line x1={x + width / 2} y1={y} x2={x + width / 2} y2={y + height} stroke={color} />
-      {/* Body rectangle */}
-      <rect x={x} y={bodyY} width={width} height={Math.max(1, bodyHeight)} fill={color} />
-    </g>
-  );
-};
 
 export function StockAnalysis() {
   const { toast } = useToast();
@@ -115,7 +90,7 @@ export function StockAnalysis() {
   
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold">{stockSymbol}</h1>
@@ -174,10 +149,7 @@ export function StockAnalysis() {
         
         <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
           <div className="mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ChartCandlestick className="h-5 w-5" />
-              <h2 className="text-lg font-medium">Price Chart</h2>
-            </div>
+            <h2 className="text-lg font-medium">Price Chart</h2>
             <div className="flex items-center text-sm text-muted-foreground">
               <Calendar className="mr-1 h-4 w-4" />
               <span>Last updated: {new Date().toLocaleDateString()}</span>
@@ -186,54 +158,35 @@ export function StockAnalysis() {
           
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
+              <AreaChart
                 data={stockData}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
+                <defs>
+                  <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                 <XAxis dataKey="date" />
                 <YAxis domain={['auto', 'auto']} />
-                <Tooltip
-                  content={(props) => {
-                    if (!props.active || !props.payload || props.payload.length === 0) return null;
-                    const data = props.payload[0].payload;
-                    return (
-                      <div className="bg-background border border-border/40 p-2 rounded-md shadow-md">
-                        <p className="font-medium">{data.date}</p>
-                        <p className="text-sm">Open: ${data.open.toFixed(2)}</p>
-                        <p className="text-sm">Close: ${data.close.toFixed(2)}</p>
-                        <p className="text-sm">High: ${data.high.toFixed(2)}</p>
-                        <p className="text-sm">Low: ${data.low.toFixed(2)}</p>
-                      </div>
-                    );
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))',
+                    borderRadius: '0.5rem',
                   }}
                 />
-                <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                {stockData.map((entry, index) => {
-                  return renderCandlestick({
-                    key: `candlestick-${index}`,
-                    x: index * 30, // This will be overridden by ComposedChart
-                    y: 0, // This will be overridden by ComposedChart
-                    width: 15,
-                    height: 100, // This will be scaled by ComposedChart
-                    open: entry.open,
-                    close: entry.close,
-                    low: entry.low,
-                    high: entry.high
-                  });
-                })}
-                <Bar 
-                  dataKey="volume" 
-                  name="Volume" 
-                  fill="rgba(0, 0, 0, 0)" 
-                  shape={(props) => renderCandlestick({
-                    ...props, 
-                    open: props.payload.open,
-                    close: props.payload.close,
-                    low: props.payload.low,
-                    high: props.payload.high
-                  })}
+                <Area
+                  type="monotone"
+                  dataKey="price"
+                  stroke="hsl(var(--primary))"
+                  fillOpacity={1}
+                  fill="url(#colorPrice)"
+                  strokeWidth={2}
                 />
-              </ComposedChart>
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
