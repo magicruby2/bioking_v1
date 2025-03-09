@@ -32,6 +32,7 @@ export function ChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSessionInitialized, setIsSessionInitialized] = useState(false);
   const [previousSessionId, setPreviousSessionId] = useState<string | null>(null);
+  const [waitingMessageId, setWaitingMessageId] = useState<string | null>(null);
   
   const { 
     currentSessionId, 
@@ -146,9 +147,11 @@ export function ChatInterface() {
     setIsLoading(true);
     
     // Create and add a waiting message with an empty content string
-    const waitingMessageId = (Date.now() + 1).toString();
+    const newWaitingMessageId = (Date.now() + 1).toString();
+    setWaitingMessageId(newWaitingMessageId);
+    
     const waitingMessage: Message = {
-      id: waitingMessageId,
+      id: newWaitingMessageId,
       content: '',
       sender: 'assistant',
       timestamp: new Date()
@@ -191,7 +194,8 @@ export function ChatInterface() {
       }
       
       // Only remove the waiting message after we get a response
-      setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
+      setMessages(prev => prev.filter(msg => msg.id !== newWaitingMessageId));
+      setWaitingMessageId(null);
       
       if (response.success) {
         const responseText = extractResponseText(response.data);
@@ -203,7 +207,7 @@ export function ChatInterface() {
           timestamp: new Date()
         };
         
-        const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, assistantMessage];
+        const finalMessages = [...messages.filter(msg => msg.id !== newWaitingMessageId), userMessage, assistantMessage];
         setMessages(finalMessages);
         
         if (currentSessionId) {
@@ -231,7 +235,8 @@ export function ChatInterface() {
       console.error('Error in chat:', error);
       
       // Only remove the waiting message after handling the error
-      setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
+      setMessages(prev => prev.filter(msg => msg.id !== newWaitingMessageId));
+      setWaitingMessageId(null);
       
       toast({
         title: "Error",
@@ -246,7 +251,7 @@ export function ChatInterface() {
         timestamp: new Date()
       };
       
-      const finalMessages = [...messages.filter(msg => msg.id !== waitingMessageId), userMessage, fallbackMessage];
+      const finalMessages = [...messages.filter(msg => msg.id !== newWaitingMessageId), userMessage, fallbackMessage];
       setMessages(finalMessages);
       
       if (currentSessionId && isSessionInitialized) {
@@ -273,7 +278,7 @@ export function ChatInterface() {
   
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background">
-      <MessageList messages={messages} />
+      <MessageList messages={messages} waitingMessageId={waitingMessageId} />
       <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
     </div>
   );

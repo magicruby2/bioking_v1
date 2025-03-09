@@ -5,9 +5,10 @@ import { cn } from '@/lib/utils';
 
 interface MessageListProps {
   messages: Message[];
+  waitingMessageId: string | null;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ messages, waitingMessageId }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const scrollToBottom = () => {
@@ -43,7 +44,7 @@ export function MessageList({ messages }: MessageListProps) {
                   : "bg-secondary text-secondary-foreground rounded-tl-none"
               )}
             >
-              {message.content === '' ? (
+              {(message.content === '' || message.id === waitingMessageId) ? (
                 <div className="flex flex-col items-center py-2">
                   <img 
                     src="/Epic-chess-battle.gif" 
