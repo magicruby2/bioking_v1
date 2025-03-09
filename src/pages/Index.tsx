@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import { useState } from "react";
+import { Crown } from "lucide-react";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -16,7 +17,9 @@ const Index = () => {
       <main className="flex-1 flex flex-col md:flex-row items-center justify-center p-6 gap-8 md:gap-12">
         <div className="w-full max-w-md flex flex-col gap-6 order-2 md:order-1">
           <div className="space-y-2 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Welcome to BIOKING</h1>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center md:justify-start">
+              BIO<Crown className="h-8 w-8 text-yellow-500 mx-1" />ING
+            </h1>
             <p className="text-xl text-muted-foreground">
               Your intelligent AI assistant powered by advanced n8n workflows
             </p>
@@ -84,7 +87,7 @@ const Index = () => {
       <footer className="py-6 md:py-0 px-4 border-t bg-card/30 backdrop-blur-sm">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-sm text-muted-foreground">
-            © 2023 BIOKING. All rights reserved.
+            © 2023 BIO<Crown className="h-4 w-4 text-yellow-500 inline mx-0.5" />ING. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link to="/chat" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

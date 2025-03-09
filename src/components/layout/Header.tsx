@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, X } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface HeaderProps {
@@ -43,7 +43,9 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
             <span className="sr-only">Toggle sidebar</span>
           </button>
           <NavLink to="/" className="flex items-center">
-            <span className="text-xl font-semibold tracking-tight">BIOKING</span>
+            <span className="text-xl font-semibold tracking-tight flex items-center">
+              BIO<Crown className="h-5 w-5 text-yellow-500 mx-0.5" />ING
+            </span>
           </NavLink>
         </div>
         
