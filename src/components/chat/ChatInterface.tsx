@@ -6,7 +6,7 @@ import MessageList from './MessageList';
 import ChatInput from './ChatInput';
 import { Message } from './types';
 import { extractResponseText } from './chatUtils';
-import { useChatSessions, ChatMessage } from './ChatSessionContext';
+import { useChatSessions, ChatMessage, ChatSession } from './ChatSessionContext';
 
 const convertToChatMessage = (message: Message): ChatMessage => {
   return {
@@ -157,14 +157,14 @@ export function ChatInterface() {
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
         const chatMessages = updatedMessages.map(convertToChatMessage);
-        const sessionToUpdate = {
+        const sessionToUpdate: ChatSession = {
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
           createdAt: new Date().toISOString(),
           messages: chatMessages,
-          type: mode || 'chat', // Set the session type based on the mode
-          folderId: mode === 'report' ? 'reports' : null // Assign reports to the Reports folder
+          type: mode || 'chat', // Now properly typed as 'chat' | 'research' | 'report'
+          folderId: mode === 'report' ? 'reports' : null 
         };
         saveSession(sessionToUpdate);
         await fetchSessions();
@@ -206,14 +206,14 @@ export function ChatInterface() {
         
         if (currentSessionId) {
           const chatMessages = finalMessages.map(convertToChatMessage);
-          const sessionToUpdate = {
+          const sessionToUpdate: ChatSession = {
             id: currentSessionId,
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
             createdAt: new Date().toISOString(),
             messages: chatMessages,
-            type: mode || 'chat', // Update the session type
-            folderId: mode === 'report' ? 'reports' : undefined // Don't override existing folderId unless it's a report
+            type: mode || 'chat', // Now properly typed
+            folderId: mode === 'report' ? 'reports' : undefined
           };
           saveSession(sessionToUpdate);
           await fetchSessions();
