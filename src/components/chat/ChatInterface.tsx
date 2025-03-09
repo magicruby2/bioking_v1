@@ -142,8 +142,8 @@ export function ChatInterface() {
       timestamp: new Date()
     };
     
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+    // Add the user message first
+    setMessages(prevMessages => [...prevMessages, userMessage]);
     setIsLoading(true);
     
     // Create and add a waiting message with an empty content string
@@ -158,12 +158,15 @@ export function ChatInterface() {
     };
     
     // Add the waiting message to the messages array
-    setMessages(prev => [...prev, waitingMessage]);
+    setMessages(prevMessages => [...prevMessages, waitingMessage]);
     
     try {
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
-        const chatMessages = updatedMessages.map(convertToChatMessage);
+        
+        // Get all current messages including the new user message
+        const allCurrentMessages = [...messages, userMessage, waitingMessage];
+        const chatMessages = allCurrentMessages.map(convertToChatMessage);
         
         // Explicitly type sessionType as one of the allowed literal types
         const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
@@ -193,10 +196,6 @@ export function ChatInterface() {
         response = await N8nService.sendChatMessage(inputValue, currentSessionId);
       }
       
-      // Only remove the waiting message after we get a response
-      setMessages(prev => prev.filter(msg => msg.id !== newWaitingMessageId));
-      setWaitingMessageId(null);
-      
       if (response.success) {
         const responseText = extractResponseText(response.data);
         
@@ -207,11 +206,24 @@ export function ChatInterface() {
           timestamp: new Date()
         };
         
-        const finalMessages = [...messages.filter(msg => msg.id !== newWaitingMessageId), userMessage, assistantMessage];
-        setMessages(finalMessages);
+        // Update messages by replacing the waiting message with the real response
+        setMessages(prev => [
+          ...prev.filter(msg => msg.id !== newWaitingMessageId),
+          assistantMessage
+        ]);
+        
+        // Clear the waiting message ID
+        setWaitingMessageId(null);
         
         if (currentSessionId) {
-          const chatMessages = finalMessages.map(convertToChatMessage);
+          // Get updated messages without the waiting message
+          const updatedMessages = [
+            ...messages.filter(msg => msg.id !== newWaitingMessageId), 
+            userMessage, 
+            assistantMessage
+          ];
+          const chatMessages = updatedMessages.map(convertToChatMessage);
+          
           // Explicitly type sessionType as one of the allowed literal types
           const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
           
@@ -234,10 +246,6 @@ export function ChatInterface() {
     } catch (error) {
       console.error('Error in chat:', error);
       
-      // Only remove the waiting message after handling the error
-      setMessages(prev => prev.filter(msg => msg.id !== newWaitingMessageId));
-      setWaitingMessageId(null);
-      
       toast({
         title: "Error",
         description: "Failed to get a response. Please try again.",
@@ -251,11 +259,24 @@ export function ChatInterface() {
         timestamp: new Date()
       };
       
-      const finalMessages = [...messages.filter(msg => msg.id !== newWaitingMessageId), userMessage, fallbackMessage];
-      setMessages(finalMessages);
+      // Update messages by replacing the waiting message with the fallback message
+      setMessages(prev => [
+        ...prev.filter(msg => msg.id !== newWaitingMessageId),
+        fallbackMessage
+      ]);
+      
+      // Clear the waiting message ID
+      setWaitingMessageId(null);
       
       if (currentSessionId && isSessionInitialized) {
-        const chatMessages = finalMessages.map(convertToChatMessage);
+        // Get updated messages without the waiting message
+        const updatedMessages = [
+          ...messages.filter(msg => msg.id !== newWaitingMessageId), 
+          userMessage, 
+          fallbackMessage
+        ];
+        const chatMessages = updatedMessages.map(convertToChatMessage);
+        
         // Explicitly type sessionType as one of the allowed literal types
         const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
         
