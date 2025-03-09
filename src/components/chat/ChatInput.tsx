@@ -1,7 +1,8 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send, RefreshCw, Search, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useChatSessions } from './ChatSessionContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChatInputProps {
   onSendMessage: (message: string, mode: 'research' | 'report' | null) => void;
@@ -11,16 +12,44 @@ interface ChatInputProps {
 export function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   const [inputValue, setInputValue] = useState('');
   const [selectedMode, setSelectedMode] = useState<'research' | 'report' | null>(null);
+  const { currentSessionId, sessions } = useChatSessions();
+  const { toast } = useToast();
+  
+  useEffect(() => {
+    if (currentSessionId && sessions.length > 0) {
+      const currentSession = sessions.find(session => session.id === currentSessionId);
+      if (currentSession?.type === 'report') {
+        setSelectedMode('report');
+      } else if (currentSession?.type === 'research') {
+        setSelectedMode('research');
+      } else {
+        setSelectedMode(null);
+      }
+    } else {
+      setSelectedMode(null);
+    }
+  }, [currentSessionId, sessions]);
   
   const handleSendMessage = () => {
     if (!inputValue.trim() || isLoading) return;
     
     onSendMessage(inputValue, selectedMode);
     setInputValue('');
-    setSelectedMode(null);
   };
 
   const toggleMode = (mode: 'research' | 'report') => {
+    if (selectedMode && selectedMode !== mode && currentSessionId) {
+      const currentSession = sessions.find(session => session.id === currentSessionId);
+      if (currentSession && currentSession.messages.length > 1) {
+        toast({
+          title: "Cannot change mode",
+          description: "Please create a new chat session to use a different mode.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    
     setSelectedMode(currentMode => currentMode === mode ? null : mode);
   };
   
