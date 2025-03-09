@@ -26,10 +26,10 @@ export function StockHeader({
   hideSearch = false
 }: StockHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-2">
-      <div className="text-right">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+      <div className="text-left md:text-left">
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">{stockSymbol}</h1>
-        <div className="mt-1 flex items-center justify-end">
+        <div className="mt-1 flex items-center">
           <span className="text-3xl font-bold">${currentPrice}</span>
         </div>
       </div>
