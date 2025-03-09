@@ -1,11 +1,6 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface StockData {
-  date: string;
-  price: number;
-  volume: number;
-}
+import type { StockData } from './dummyData';
 
 interface VolumeChartProps {
   stockData: StockData[];
@@ -33,6 +28,7 @@ export function VolumeChart({ stockData }: VolumeChartProps) {
                 borderColor: 'hsl(var(--border))',
                 borderRadius: '0.5rem',
               }}
+              formatter={(value: any) => [Number(value).toLocaleString(), 'Volume']}
             />
             <Line 
               type="monotone" 
