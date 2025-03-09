@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -8,7 +7,6 @@ import { Message } from './types';
 import { extractResponseText } from './chatUtils';
 import { useChatSessions, ChatMessage } from './ChatSessionContext';
 
-// Helper function to convert between Message and ChatMessage types
 const convertToChatMessage = (message: Message): ChatMessage => {
   return {
     id: message.id,
@@ -43,7 +41,6 @@ export function ChatInterface() {
     fetchSessions
   } = useChatSessions();
   
-  // Create a new session ID if one doesn't exist
   useEffect(() => {
     if (!currentSessionId) {
       const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -60,7 +57,6 @@ export function ChatInterface() {
     if (currentSession) {
       if (currentSession.messages && currentSession.messages.length > 0) {
         console.log("Loading messages from session:", currentSession.messages);
-        // Convert ChatMessage[] to Message[]
         const convertedMessages = currentSession.messages.map(convertToMessage);
         setMessages(convertedMessages);
         setIsSessionInitialized(true);
@@ -75,7 +71,6 @@ export function ChatInterface() {
         setMessages([initialMessage]);
         setIsSessionInitialized(false);
         
-        // Save this initial message to the session
         updateSession(currentSessionId, {
           messages: [convertToChatMessage(initialMessage)],
         });
@@ -101,7 +96,6 @@ export function ChatInterface() {
       const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       console.log("Creating new session with ID:", newId);
       
-      // Create new session with the initial greeting message
       addSession({
         id: newId,
         title: "New Conversation",
@@ -110,10 +104,8 @@ export function ChatInterface() {
         messages: [convertToChatMessage(initialMessage)]
       });
       
-      // Set this as the current session
       setCurrentSessionId(newId);
     } else if (!isSessionInitialized) {
-      // Also ensure we save the initial greeting message when reusing an existing session ID
       updateSession(currentSessionId, {
         messages: [convertToChatMessage(initialMessage)],
       });
@@ -123,7 +115,6 @@ export function ChatInterface() {
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
     
-    // Ensure we have a valid session ID
     if (!currentSessionId) {
       const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
       setCurrentSessionId(newId);
@@ -137,13 +128,11 @@ export function ChatInterface() {
       timestamp: new Date()
     };
     
-    // Immediately update local messages state to show user input
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
     setIsLoading(true);
     
     const waitingMessageId = (Date.now() + 1).toString();
-    // Add waiting message to show loading state
     setMessages(prev => [...prev, {
       id: waitingMessageId,
       content: "",
@@ -152,13 +141,9 @@ export function ChatInterface() {
     }]);
     
     try {
-      // Initialize the session with the first user message
       if (!isSessionInitialized && currentSessionId) {
         setIsSessionInitialized(true);
-        // Convert Message[] to ChatMessage[]
         const chatMessages = updatedMessages.map(convertToChatMessage);
-        
-        // Create/update the session with user message immediately so it appears in sidebar
         const sessionToUpdate = {
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
@@ -166,11 +151,7 @@ export function ChatInterface() {
           createdAt: new Date().toISOString(),
           messages: chatMessages
         };
-        
-        // Save the session to ensure it appears in the sidebar
         saveSession(sessionToUpdate);
-        
-        // Trigger a sidebar refresh
         await fetchSessions();
       }
       
@@ -193,21 +174,15 @@ export function ChatInterface() {
         setMessages(finalMessages);
         
         if (currentSessionId) {
-          // Convert Message[] to ChatMessage[]
           const chatMessages = finalMessages.map(convertToChatMessage);
-          
-          // Update the session with the response
           const sessionToUpdate = {
             id: currentSessionId,
             title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
+            createdAt: new Date().toISOString(),
             messages: chatMessages
           };
-          
-          // Use saveSession instead of updateSession to ensure it triggers a sidebar update
           saveSession(sessionToUpdate);
-          
-          // Refresh sessions to update sidebar
           await fetchSessions();
         }
       } else {
@@ -235,10 +210,7 @@ export function ChatInterface() {
       setMessages(finalMessages);
       
       if (currentSessionId && isSessionInitialized) {
-        // Convert Message[] to ChatMessage[]
         const chatMessages = finalMessages.map(convertToChatMessage);
-        
-        // Update the session with the fallback message
         saveSession({
           id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
@@ -246,8 +218,6 @@ export function ChatInterface() {
           createdAt: new Date().toISOString(),
           messages: chatMessages
         });
-        
-        // Refresh sessions to update sidebar
         await fetchSessions();
       }
     } finally {
