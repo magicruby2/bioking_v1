@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -30,10 +29,7 @@ export function StockAnalysis() {
         // For now we'll use our dummy data with slight variations
         setStockData(dummyStockData.map(item => ({
           ...item,
-          open: item.open * (0.95 + Math.random() * 0.1),
-          high: item.high * (0.95 + Math.random() * 0.1),
-          low: item.low * (0.95 + Math.random() * 0.1),
-          close: item.close * (0.95 + Math.random() * 0.1)
+          price: item.price * (0.9 + Math.random() * 0.2)
         })));
       } else {
         throw new Error(response.error || 'Failed to fetch stock data');
@@ -64,8 +60,8 @@ export function StockAnalysis() {
     }
   };
   
-  const currentPrice = stockData[stockData.length - 1]?.close.toFixed(2);
-  const previousPrice = stockData[stockData.length - 2]?.close;
+  const currentPrice = stockData[stockData.length - 1]?.price.toFixed(2);
+  const previousPrice = stockData[stockData.length - 2]?.price;
   const priceDiff = currentPrice && previousPrice 
     ? (parseFloat(currentPrice) - previousPrice).toFixed(2)
     : '0.00';
