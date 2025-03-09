@@ -22,31 +22,39 @@ const renderCandlestick = (
 ) => {
   const isPositive = close >= open;
   const color = isPositive ? "hsl(var(--success))" : "hsl(var(--destructive))";
-  const barWidth = width * 0.6; // Slightly narrower for better appearance
-  const barX = x - (barWidth / 2); // Center the bar on the x position
-  const wickX = x; // Center the wick line
+  const barWidth = width * 0.6; // Candlestick body width
   
-  // Calculate the y positions for open and close
-  const openY = y + height - (height * (open - low) / (high - low));
-  const closeY = y + height - (height * (close - low) / (high - low));
+  // Center the bar on the data point
+  const barX = x - (barWidth / 2);
+  
+  // Calculate the y positions for open, close, high, and low
+  const highY = y;
+  const lowY = y + height;
+  const openY = y + ((open - high) / (low - high)) * height;
+  const closeY = y + ((close - high) / (low - high)) * height;
+  
+  // Determine the rectangle's y position and height based on whether price closed higher or lower
+  const rectY = isPositive ? closeY : openY;
+  const rectHeight = Math.max(1, Math.abs(closeY - openY)); // Ensure minimum height of 1px
   
   return (
     <g key={x + y}>
       {/* Wick line (high to low) */}
       <line
-        x1={wickX}
-        y1={y + height - (height * (high - low) / (high - low))} // Top of the wick (high)
-        x2={wickX}
-        y2={y + height - (height * (low - low) / (high - low))} // Bottom of the wick (low)
+        x1={x}
+        y1={highY}
+        x2={x}
+        y2={lowY}
         stroke={color}
         strokeWidth={1}
       />
+      
       {/* Body rectangle (open to close) */}
       <rect
         x={barX}
-        y={isPositive ? closeY : openY} // Position based on whether it's up or down
+        y={rectY}
         width={barWidth}
-        height={Math.max(1, Math.abs(openY - closeY))} // Ensure minimum height of 1
+        height={rectHeight}
         fill={color}
         stroke={color}
       />
