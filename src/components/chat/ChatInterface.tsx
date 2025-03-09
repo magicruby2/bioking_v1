@@ -1,6 +1,6 @@
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, RefreshCw, Loader2 } from 'lucide-react';
+import { Send, RefreshCw } from 'lucide-react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 
@@ -194,7 +194,11 @@ export function ChatInterface() {
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2 py-2">
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <img 
+                      src="/Epic-chess-battle.gif" 
+                      alt="Loading" 
+                      className="h-10 w-10"
+                    />
                     <span className="text-sm text-muted-foreground">Thinking...</span>
                   </div>
                 )}
