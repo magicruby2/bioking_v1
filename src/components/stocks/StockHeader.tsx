@@ -8,9 +8,10 @@ interface StockHeaderProps {
   priceDiff: string;
   percentDiff: string;
   isPositive: boolean;
-  searchInput: string;
-  setSearchInput: (value: string) => void;
-  handleSearch: (e: React.FormEvent) => void;
+  searchInput?: string;
+  setSearchInput?: (value: string) => void;
+  handleSearch?: (e: React.FormEvent) => void;
+  hideSearch?: boolean;
 }
 
 export function StockHeader({
@@ -19,9 +20,10 @@ export function StockHeader({
   priceDiff,
   percentDiff,
   isPositive,
-  searchInput,
-  setSearchInput,
-  handleSearch
+  searchInput = '',
+  setSearchInput = () => {},
+  handleSearch = (e) => { e.preventDefault(); },
+  hideSearch = false
 }: StockHeaderProps) {
   return (
     <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -35,24 +37,26 @@ export function StockHeader({
         </div>
       </div>
       
-      <form onSubmit={handleSearch} className="flex w-full md:w-auto">
-        <div className="relative flex flex-1 md:w-64">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search symbol..."
-            className="flex h-10 w-full rounded-l-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          />
-        </div>
-        <button
-          type="submit"
-          className="inline-flex h-10 items-center justify-center rounded-r-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Search
-        </button>
-      </form>
+      {!hideSearch && (
+        <form onSubmit={handleSearch} className="flex w-full md:w-auto">
+          <div className="relative flex flex-1 md:w-64">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search symbol..."
+              className="flex h-10 w-full rounded-l-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            />
+          </div>
+          <button
+            type="submit"
+            className="inline-flex h-10 items-center justify-center rounded-r-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Search
+          </button>
+        </form>
+      )}
     </div>
   );
 }
