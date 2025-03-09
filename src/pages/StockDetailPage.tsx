@@ -31,7 +31,7 @@ const StockDetailPage = () => {
       
       <div className="flex-1 overflow-hidden">
         <main className="h-full">
-          <div className="container pt-1 pb-4">
+          <div className="container py-4">
             <Button 
               variant="outline" 
               size="sm" 
