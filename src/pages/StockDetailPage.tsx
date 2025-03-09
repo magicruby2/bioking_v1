@@ -31,17 +31,22 @@ const StockDetailPage = () => {
       
       <div className="flex-1 overflow-hidden">
         <main className="h-full">
-          <div className="container py-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="mb-4" 
-              onClick={handleBack}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-            <StockAnalysis stockSymbol={symbol} />
+          <div className="container pt-2">
+            <div className="flex items-start">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mr-4" 
+                onClick={handleBack}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+              </Button>
+              
+              <div className="flex-1">
+                <StockAnalysis stockSymbol={symbol} />
+              </div>
+            </div>
           </div>
         </main>
       </div>

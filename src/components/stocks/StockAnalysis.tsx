@@ -57,9 +57,9 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
   }, []);
   
   return (
-    <div className="container py-8">
+    <div className="py-0">
       {loading ? (
-        <Card className="mb-8">
+        <Card className="mb-4">
           <CardContent className="p-4">
             <Skeleton className="h-10 w-[200px] mb-4" />
             <Skeleton className="h-6 w-[150px] mb-2" />
