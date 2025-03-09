@@ -2,13 +2,14 @@
 import { Calendar } from 'lucide-react';
 import { 
   ComposedChart, 
-  Bar, 
   XAxis, 
   YAxis, 
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  ReferenceLine
+  ReferenceLine,
+  Area,
+  Line
 } from 'recharts';
 import type { StockData } from './dummyData';
 
@@ -108,11 +109,13 @@ export function PriceChart({ stockData }: PriceChartProps) {
               labelFormatter={(label) => `Date: ${label}`}
             />
             
-            {/* Using Bar with custom shape for candlestick */}
-            <Bar
+            {/* Using custom shape for candlestick */}
+            <Area
               dataKey="highLowDiff"
-              shape={renderCandlestick}
+              baseValue={0}
               isAnimationActive={false}
+              shape={renderCandlestick}
+              legendType="none"
             />
           </ComposedChart>
         </ResponsiveContainer>
