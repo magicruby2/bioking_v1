@@ -8,8 +8,7 @@ import {
   Tooltip, 
   ResponsiveContainer,
   ReferenceLine,
-  Area,
-  Line
+  Bar
 } from 'recharts';
 import type { StockData } from './dummyData';
 
@@ -109,12 +108,11 @@ export function PriceChart({ stockData }: PriceChartProps) {
               labelFormatter={(label) => `Date: ${label}`}
             />
             
-            {/* Using custom shape for candlestick */}
-            <Area
+            {/* Using Bar with custom shape for candlestick */}
+            <Bar
               dataKey="highLowDiff"
-              baseValue={0}
-              isAnimationActive={false}
               shape={renderCandlestick}
+              isAnimationActive={false}
               legendType="none"
             />
           </ComposedChart>
