@@ -180,7 +180,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                   >
                     <div className="flex items-center gap-2">
                       <Folder className="h-4 w-4" />
-                      <span>{folder.name}</span>
+                      <span className="truncate">{folder.name}</span>
                     </div>
                     <span className="text-xs">{folder.expanded ? '▾' : '▸'}</span>
                   </button>
@@ -200,7 +200,7 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                             }`}
                           >
                             <MessageCircle className="h-4 w-4 shrink-0" />
-                            <span className="truncate">{chat.title}</span>
+                            <span className="truncate w-full text-left">{chat.title}</span>
                           </button>
                         ))
                       }
@@ -230,9 +230,9 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
                         }`}
                       >
                         <MessageCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium text-foreground">{chat.title}</span>
-                          <span className="truncate text-xs">{chat.preview}</span>
+                        <div className="flex flex-col items-start w-full overflow-hidden">
+                          <span className="font-medium text-foreground truncate w-full">{chat.title}</span>
+                          <span className="truncate w-full text-xs text-left">{chat.preview}</span>
                         </div>
                       </button>
                     ))
