@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Scatter, CandlestickChart, Candlestick } from 'recharts';
+import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ComposedChart, Bar, Scatter } from 'recharts';
 import { RefreshCw, Calendar, Search, ChartCandlestick } from 'lucide-react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -29,6 +29,26 @@ const dummyStockData: StockData[] = [
 ];
 
 const timeframeOptions = ['1D', '1W', '1M', '3M', '1Y', 'YTD'];
+
+// Custom rendering function for candlestick chart
+const renderCandlestick = (props: any) => {
+  const { x, y, width, height, open, close, low, high } = props;
+  const isPositive = close > open;
+  const color = isPositive ? "hsl(var(--success))" : "hsl(var(--destructive))";
+  const bodyY = isPositive ? y + (height * (high - close) / (high - low)) : y + (height * (high - open) / (high - low));
+  const bodyHeight = isPositive 
+    ? height * (close - open) / (high - low) 
+    : height * (open - close) / (high - low);
+  
+  return (
+    <g key={`candlestick-${x}`}>
+      {/* Wick line */}
+      <line x1={x + width / 2} y1={y} x2={x + width / 2} y2={y + height} stroke={color} />
+      {/* Body rectangle */}
+      <rect x={x} y={bodyY} width={width} height={Math.max(1, bodyHeight)} fill={color} />
+    </g>
+  );
+};
 
 export function StockAnalysis() {
   const { toast } = useToast();
@@ -166,7 +186,7 @@ export function StockAnalysis() {
           
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <CandlestickChart
+              <ComposedChart
                 data={stockData}
                 margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
               >
@@ -188,14 +208,32 @@ export function StockAnalysis() {
                   }}
                 />
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <Candlestick
-                  fill="transparent"
-                  yAccessor={(data) => [data.open, data.high, data.low, data.close]}
-                  stroke={(data) => (data.close > data.open ? "hsl(var(--success))" : "hsl(var(--destructive))")}
-                  wickStroke={(data) => (data.close > data.open ? "hsl(var(--success))" : "hsl(var(--destructive))")}
-                  fillOpacity={1}
+                {stockData.map((entry, index) => {
+                  return renderCandlestick({
+                    key: `candlestick-${index}`,
+                    x: index * 30, // This will be overridden by ComposedChart
+                    y: 0, // This will be overridden by ComposedChart
+                    width: 15,
+                    height: 100, // This will be scaled by ComposedChart
+                    open: entry.open,
+                    close: entry.close,
+                    low: entry.low,
+                    high: entry.high
+                  });
+                })}
+                <Bar 
+                  dataKey="volume" 
+                  name="Volume" 
+                  fill="rgba(0, 0, 0, 0)" 
+                  shape={(props) => renderCandlestick({
+                    ...props, 
+                    open: props.payload.open,
+                    close: props.payload.close,
+                    low: props.payload.low,
+                    high: props.payload.high
+                  })}
                 />
-              </CandlestickChart>
+              </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
