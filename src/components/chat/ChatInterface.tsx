@@ -48,25 +48,35 @@ export function ChatInterface() {
   useEffect(() => {
     if (messages.length > 0) return;
     
-    setMessages([{
+    const initialMessage = {
       id: '1',
       content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
       sender: 'assistant',
       timestamp: new Date()
-    }]);
+    };
+    
+    setMessages([initialMessage]);
     
     if (!currentSessionId) {
       const newId = Math.random().toString(36).substring(2, 15) + 
                    Math.random().toString(36).substring(2, 15);
       
+      // Create new session with the initial greeting message
       addSession({
         id: newId,
         title: "New Conversation",
-        preview: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
+        preview: initialMessage.content,
+        timestamp: new Date(),
+        messages: [initialMessage] // Include the initial message in the session
+      });
+    } else if (!isSessionInitialized) {
+      // Also ensure we save the initial greeting message when reusing an existing session ID
+      updateSession(currentSessionId, {
+        messages: [initialMessage],
         timestamp: new Date()
       });
     }
-  }, [currentSessionId, addSession, messages.length]);
+  }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession]);
   
   const handleSendMessage = async (inputValue: string) => {
     if (!inputValue.trim() || isLoading) return;
