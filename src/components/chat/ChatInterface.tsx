@@ -162,6 +162,7 @@ export function ChatInterface() {
         setIsSessionInitialized(true);
         const chatMessages = updatedMessages.map(convertToChatMessage);
         
+        // Explicitly type sessionType as one of the allowed literal types
         const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
         
         const sessionToUpdate = {
@@ -207,6 +208,7 @@ export function ChatInterface() {
         
         if (currentSessionId) {
           const chatMessages = finalMessages.map(convertToChatMessage);
+          // Explicitly type sessionType as one of the allowed literal types
           const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
           
           const sessionToUpdate = {
@@ -249,6 +251,7 @@ export function ChatInterface() {
       
       if (currentSessionId && isSessionInitialized) {
         const chatMessages = finalMessages.map(convertToChatMessage);
+        // Explicitly type sessionType as one of the allowed literal types
         const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
         
         saveSession({
