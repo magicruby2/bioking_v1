@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -52,7 +51,6 @@ export function ChatInterface() {
   }, [currentSessionId, setCurrentSessionId]);
   
   useEffect(() => {
-    // If the session ID has changed, we need to reset the messages
     if (currentSessionId !== previousSessionId) {
       setPreviousSessionId(currentSessionId);
       setMessages([]);
@@ -123,7 +121,7 @@ export function ChatInterface() {
     }
   }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession, setCurrentSessionId]);
   
-  const handleSendMessage = async (inputValue: string) => {
+  const handleSendMessage = async (inputValue: string, mode: 'research' | 'report' | null) => {
     if (!inputValue.trim() || isLoading) return;
     
     if (!currentSessionId) {
@@ -132,9 +130,12 @@ export function ChatInterface() {
       console.log("Created new session ID before sending message:", newId);
     }
     
+    const messagePrefix = mode ? `[${mode.toUpperCase()}] ` : '';
+    const messageContent = `${messagePrefix}${inputValue}`;
+    
     const userMessage: Message = {
       id: Date.now().toString(),
-      content: inputValue,
+      content: messageContent,
       sender: 'user',
       timestamp: new Date()
     };
@@ -167,7 +168,7 @@ export function ChatInterface() {
       }
       
       console.log("Sending message with session ID:", currentSessionId);
-      const response = await N8nService.sendChatMessage(inputValue, currentSessionId);
+      const response = await N8nService.sendChatMessage(messageContent, currentSessionId);
       
       setMessages(prev => prev.filter(msg => msg.id !== waitingMessageId));
       
