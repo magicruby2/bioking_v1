@@ -17,6 +17,9 @@ const ChatPageContent = () => {
   
   const handleNewChat = () => {
     console.log('Creating new chat...');
+    // First set current session ID to null to trigger a complete reset
+    setCurrentSessionId(null);
+    
     // Generate a new session ID with a more consistent format
     const newId = `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     
@@ -30,7 +33,9 @@ const ChatPageContent = () => {
     });
     
     // Set as current session
-    setCurrentSessionId(newId);
+    setTimeout(() => {
+      setCurrentSessionId(newId);
+    }, 0);
     
     toast({
       title: "New Chat Created",

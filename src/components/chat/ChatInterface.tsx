@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ export function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSessionInitialized, setIsSessionInitialized] = useState(false);
+  const [previousSessionId, setPreviousSessionId] = useState<string | null>(null);
   
   const { 
     currentSessionId, 
@@ -50,6 +52,13 @@ export function ChatInterface() {
   }, [currentSessionId, setCurrentSessionId]);
   
   useEffect(() => {
+    // If the session ID has changed, we need to reset the messages
+    if (currentSessionId !== previousSessionId) {
+      setPreviousSessionId(currentSessionId);
+      setMessages([]);
+      setIsSessionInitialized(false);
+    }
+    
     if (!currentSessionId) return;
     
     const currentSession = sessions.find(session => session.id === currentSessionId);
@@ -73,6 +82,7 @@ export function ChatInterface() {
         
         updateSession(currentSessionId, {
           messages: [convertToChatMessage(initialMessage)],
+          createdAt: new Date().toISOString()
         });
       }
     } else {
@@ -108,6 +118,7 @@ export function ChatInterface() {
     } else if (!isSessionInitialized) {
       updateSession(currentSessionId, {
         messages: [convertToChatMessage(initialMessage)],
+        createdAt: new Date().toISOString()
       });
     }
   }, [currentSessionId, addSession, messages.length, isSessionInitialized, updateSession, setCurrentSessionId]);
