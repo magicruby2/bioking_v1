@@ -54,7 +54,7 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
         
         // Only show sessions that have at least one user message
         const sessionsWithUserMessages = parsedSessions.filter(session => 
-          session.messages.some(msg => msg.role === 'user')
+          session.messages && session.messages.some(msg => msg.role === 'user')
         );
         
         setSessions(sessionsWithUserMessages);
@@ -78,9 +78,15 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
       createdAt: session.createdAt || new Date().toISOString()
     };
     
-    setSessions(prevSessions => [...prevSessions, sessionWithCreatedAt]);
+    // Check if the session contains a user message
+    const hasUserMessage = sessionWithCreatedAt.messages.some(msg => msg.role === 'user');
     
-    // Save to localStorage
+    // Only add to visible sessions if it has a user message
+    if (hasUserMessage) {
+      setSessions(prevSessions => [...prevSessions, sessionWithCreatedAt]);
+    }
+    
+    // Always save to localStorage
     const storedSessions = localStorage.getItem('chatSessions');
     const parsedSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
     localStorage.setItem('chatSessions', JSON.stringify([...parsedSessions, sessionWithCreatedAt]));
@@ -90,72 +96,107 @@ export const ChatSessionProvider = ({ children }: { children: React.ReactNode })
   };
 
   const updateSession = useCallback((sessionId: string, updates: Partial<ChatSession>) => {
-    setSessions(prevSessions => {
-      const updatedSessions = prevSessions.map(session => 
-        session.id === sessionId 
-          ? { ...session, ...updates } 
-          : session
+    // Get current sessions from localStorage
+    const storedSessions = localStorage.getItem('chatSessions');
+    const allStoredSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
+    
+    // Find the session to update
+    const sessionToUpdate = allStoredSessions.find(s => s.id === sessionId);
+    
+    if (sessionToUpdate) {
+      // Update the session
+      const updatedSession = { ...sessionToUpdate, ...updates };
+      
+      // Update in localStorage
+      const updatedStoredSessions = allStoredSessions.map(session =>
+        session.id === sessionId ? updatedSession : session
       );
+      localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
       
-      // Also update in localStorage (including sessions not currently visible in UI)
-      const storedSessions = localStorage.getItem('chatSessions');
-      if (storedSessions) {
-        const allStoredSessions = JSON.parse(storedSessions) as ChatSession[];
-        const updatedStoredSessions = allStoredSessions.map(session =>
-          session.id === sessionId
-            ? { ...session, ...updates }
-            : session
-        );
-        localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
-      } else {
-        localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-      }
+      // Check if the updated session has a user message
+      const hasUserMessage = updatedSession.messages.some(msg => msg.role === 'user');
       
-      return updatedSessions;
-    });
+      // Update in-memory sessions
+      setSessions(prevSessions => {
+        const alreadyExists = prevSessions.some(s => s.id === sessionId);
+        
+        if (alreadyExists) {
+          // Update existing session
+          return prevSessions.map(session => 
+            session.id === sessionId ? updatedSession : session
+          );
+        } else if (hasUserMessage) {
+          // Add as new session if it has user messages
+          return [...prevSessions, updatedSession];
+        }
+        
+        // No change needed
+        return prevSessions;
+      });
+    } else {
+      console.error(`Session with ID ${sessionId} not found for update`);
+    }
   }, []);
 
   const saveSession = useCallback((session: ChatSession) => {
+    // Check if the session has at least one user message
+    const hasUserMessage = session.messages.some(msg => msg.role === 'user');
+    
+    // Get current sessions from localStorage
+    const storedSessions = localStorage.getItem('chatSessions');
+    const allStoredSessions = storedSessions ? JSON.parse(storedSessions) as ChatSession[] : [];
+    
+    // Check if session already exists in localStorage
+    const existingSessionIndex = allStoredSessions.findIndex(s => s.id === session.id);
+    
+    if (existingSessionIndex !== -1) {
+      // Update existing session in localStorage
+      allStoredSessions[existingSessionIndex] = session;
+    } else {
+      // Add new session to localStorage
+      allStoredSessions.push(session);
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('chatSessions', JSON.stringify(allStoredSessions));
+    
+    // Update in-memory sessions based on user messages
     setSessions(prevSessions => {
-      // Check if the session has at least one user message
-      const hasUserMessage = session.messages.some(msg => msg.role === 'user');
+      // Find if session already exists in memory
+      const existingIndex = prevSessions.findIndex(s => s.id === session.id);
       
-      // Update or add the session
-      const updatedSessions = prevSessions.map(s => 
-        s.id === session.id ? session : s
-      );
-      
-      // If the session wasn't found and it has user messages, add it
-      if (!updatedSessions.includes(session) && hasUserMessage) {
-        updatedSessions.push(session);
-      } else if (!updatedSessions.includes(session) && !hasUserMessage) {
-        // If it doesn't have user messages yet, don't add it to the displayed sessions
-        // but still save it in localStorage for persistence
-        const allStoredSessions = [...prevSessions, session];
-        localStorage.setItem('chatSessions', JSON.stringify(allStoredSessions));
-        return prevSessions; // Return unchanged visible sessions
+      if (existingIndex !== -1) {
+        // Update existing session
+        return prevSessions.map(s => s.id === session.id ? session : s);
+      } else if (hasUserMessage) {
+        // Add as new session if it has user messages
+        return [...prevSessions, session];
       }
       
-      // Save all sessions to localStorage
-      localStorage.setItem('chatSessions', JSON.stringify(updatedSessions));
-      return updatedSessions;
+      // No change needed
+      return prevSessions;
     });
+    
+    // If session has user messages, trigger a fetch to update the sidebar
+    if (hasUserMessage) {
+      fetchSessions();
+    }
   }, []);
 
   const deleteSession = (sessionId: string) => {
+    // Remove from in-memory sessions
     setSessions(prevSessions => {
       const updatedSessions = prevSessions.filter(session => session.id !== sessionId);
-      
-      // Also remove from localStorage
-      const storedSessions = localStorage.getItem('chatSessions');
-      if (storedSessions) {
-        const allStoredSessions = JSON.parse(storedSessions) as ChatSession[];
-        const updatedStoredSessions = allStoredSessions.filter(session => session.id !== sessionId);
-        localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
-      }
-      
       return updatedSessions;
     });
+    
+    // Also remove from localStorage
+    const storedSessions = localStorage.getItem('chatSessions');
+    if (storedSessions) {
+      const allStoredSessions = JSON.parse(storedSessions) as ChatSession[];
+      const updatedStoredSessions = allStoredSessions.filter(session => session.id !== sessionId);
+      localStorage.setItem('chatSessions', JSON.stringify(updatedStoredSessions));
+    }
     
     // If the deleted session was the current one, clear the current session
     if (currentSessionId === sessionId) {

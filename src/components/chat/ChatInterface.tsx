@@ -38,7 +38,9 @@ export function ChatInterface() {
     addSession,
     setCurrentSessionId,
     updateSession,
-    sessions
+    sessions,
+    saveSession,
+    fetchSessions
   } = useChatSessions();
   
   // Create a new session ID if one doesn't exist
@@ -155,11 +157,21 @@ export function ChatInterface() {
         setIsSessionInitialized(true);
         // Convert Message[] to ChatMessage[]
         const chatMessages = updatedMessages.map(convertToChatMessage);
-        updateSession(currentSessionId, {
+        
+        // Create/update the session with user message immediately so it appears in sidebar
+        const sessionToUpdate = {
+          id: currentSessionId,
           title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: inputValue,
+          createdAt: new Date().toISOString(),
           messages: chatMessages
-        });
+        };
+        
+        // Save the session to ensure it appears in the sidebar
+        saveSession(sessionToUpdate);
+        
+        // Trigger a sidebar refresh
+        await fetchSessions();
       }
       
       console.log("Sending message with session ID:", currentSessionId);
@@ -183,10 +195,20 @@ export function ChatInterface() {
         if (currentSessionId) {
           // Convert Message[] to ChatMessage[]
           const chatMessages = finalMessages.map(convertToChatMessage);
-          updateSession(currentSessionId, {
+          
+          // Update the session with the response
+          const sessionToUpdate = {
+            id: currentSessionId,
+            title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
             preview: responseText,
             messages: chatMessages
-          });
+          };
+          
+          // Use saveSession instead of updateSession to ensure it triggers a sidebar update
+          saveSession(sessionToUpdate);
+          
+          // Refresh sessions to update sidebar
+          await fetchSessions();
         }
       } else {
         throw new Error(response.error || 'Failed to get response');
@@ -215,10 +237,18 @@ export function ChatInterface() {
       if (currentSessionId && isSessionInitialized) {
         // Convert Message[] to ChatMessage[]
         const chatMessages = finalMessages.map(convertToChatMessage);
-        updateSession(currentSessionId, {
+        
+        // Update the session with the fallback message
+        saveSession({
+          id: currentSessionId,
+          title: inputValue.substring(0, 30) + (inputValue.length > 30 ? '...' : ''),
           preview: fallbackMessage.content,
+          createdAt: new Date().toISOString(),
           messages: chatMessages
         });
+        
+        // Refresh sessions to update sidebar
+        await fetchSessions();
       }
     } finally {
       setIsLoading(false);
