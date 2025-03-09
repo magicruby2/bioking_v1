@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import StockHeader from '@/components/stocks/StockHeader';
@@ -62,7 +63,7 @@ const StockAnalysis = ({ stockSymbol: propStockSymbol }: StockAnalysisProps) => 
   };
   
   return (
-    <div className="container py-8">
+    <div className="container pt-2 pb-8">
       {loading ? (
         <Card className="mb-8">
           <CardContent className="p-4">
