@@ -32,18 +32,26 @@ export function ChatInterface() {
         setMessages(currentSession.messages);
         setIsSessionInitialized(true);
       } else {
-        setMessages([{
+        const initialMessage: Message = {
           id: '1',
           content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
-          sender: 'assistant',
+          sender: 'assistant' as const,
           timestamp: new Date()
-        }]);
+        };
+        
+        setMessages([initialMessage]);
         setIsSessionInitialized(false);
+        
+        // Save this initial message to the session
+        updateSession(currentSessionId, {
+          messages: [initialMessage],
+          timestamp: new Date()
+        });
       }
     } else {
       console.log("Session not found:", currentSessionId);
     }
-  }, [currentSessionId, sessions]);
+  }, [currentSessionId, sessions, updateSession]);
   
   useEffect(() => {
     if (messages.length > 0) return;
@@ -51,7 +59,7 @@ export function ChatInterface() {
     const initialMessage: Message = {
       id: '1',
       content: "Hello! I'm your AI assistant integrated with n8n. How can I help you today?",
-      sender: 'assistant',
+      sender: 'assistant' as const,
       timestamp: new Date()
     };
     
