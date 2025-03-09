@@ -2,7 +2,6 @@
 import { Calendar } from 'lucide-react';
 import { 
   ComposedChart, 
-  Bar,
   Line,
   XAxis, 
   YAxis, 
@@ -71,14 +70,12 @@ export function PriceChart({ stockData }: PriceChartProps) {
     // These props are needed for custom candlestick rendering
     highLowDiff: item.high - item.low,
     openCloseDiff: Math.abs(item.open - item.close),
-    // Add color based on price movement for volume bars
-    volumeColor: item.close >= item.open ? "hsl(var(--success))" : "hsl(var(--destructive))"
   }));
 
   return (
     <div className="mb-8 overflow-hidden rounded-xl border border-border/40 bg-card p-4">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-medium">Price & Volume</h2>
+        <h2 className="text-lg font-medium">Price Chart</h2>
         <div className="flex items-center text-sm text-muted-foreground">
           <Calendar className="mr-1 h-4 w-4" />
           <span>Last updated: {new Date().toLocaleDateString()}</span>
@@ -94,20 +91,11 @@ export function PriceChart({ stockData }: PriceChartProps) {
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
             <XAxis dataKey="date" />
             
-            {/* Primary YAxis for price */}
+            {/* YAxis for price */}
             <YAxis 
-              yAxisId="price"
               domain={['auto', 'auto']} 
               orientation="right"
               label={{ value: 'Price ($)', angle: -90, position: 'insideRight' }}
-            />
-            
-            {/* Secondary YAxis for volume */}
-            <YAxis 
-              yAxisId="volume"
-              domain={['auto', 'auto']}
-              orientation="left"
-              label={{ value: 'Volume', angle: -90, position: 'insideLeft' }}
             />
             
             <Tooltip 
@@ -122,7 +110,6 @@ export function PriceChart({ stockData }: PriceChartProps) {
                 if (name === 'high') return ['High: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
                 if (name === 'low') return ['Low: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
                 if (name === 'close') return ['Close: $' + (typeof value === 'number' ? value.toFixed(2) : value)];
-                if (name === 'volume') return [Number(value).toLocaleString(), 'Volume'];
                 return [value];
               }}
               labelFormatter={(label) => `Date: ${label}`}
@@ -130,49 +117,9 @@ export function PriceChart({ stockData }: PriceChartProps) {
             
             {/* Using Bar with custom shape for candlestick */}
             <Bar
-              yAxisId="price"
               dataKey="highLowDiff"
               shape={renderCandlestick}
               isAnimationActive={false}
-            />
-            
-            {/* Volume bars at the bottom */}
-            <Bar 
-              yAxisId="volume"
-              dataKey="volume" 
-              fill="rgba(0, 0, 0, 0.2)" 
-              stroke="rgba(0, 0, 0, 0.2)"
-              barSize={20}
-              isAnimationActive={false}
-              name="Volume"
-            />
-            
-            {/* Colored overlay for volume bars based on price movement */}
-            <Bar 
-              yAxisId="volume"
-              dataKey="volume" 
-              fill="transparent" 
-              stroke="transparent"
-              isAnimationActive={false}
-              fillOpacity={0.7}
-              strokeOpacity={0}
-              name="Volume"
-              shape={(props) => {
-                const { x, y, width, height, volumeColor } = props;
-                return (
-                  <rect
-                    x={x}
-                    y={y}
-                    width={width}
-                    height={height}
-                    fill={props.payload.close >= props.payload.open ? 
-                      "rgba(139, 92, 246, 0.7)" : // Purple for positive (using success color)
-                      "rgba(217, 70, 239, 0.7)"  // Pink for negative (using destructive color)
-                    }
-                    stroke="none"
-                  />
-                );
-              }}
             />
           </ComposedChart>
         </ResponsiveContainer>
