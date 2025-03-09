@@ -23,10 +23,10 @@ export function Sidebar({ isOpen, onNewChat }: SidebarProps) {
   
   const { toast } = useToast();
   
-  // Define folders with state to track expansion
+  // Define folders with state to track expansion - default to closed
   const [folders, setFolders] = useState([
-    { id: 'chat', name: 'Chat', expanded: true },
-    { id: 'reports', name: 'Reports', expanded: true },
+    { id: 'chat', name: 'Chat', expanded: false },
+    { id: 'reports', name: 'Reports', expanded: false },
   ]);
   
   const toggleFolder = (folderId: string) => {
