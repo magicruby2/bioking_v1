@@ -97,7 +97,7 @@ export class N8nService {
   public static async sendChatMessage(message: string, sessionId: string): Promise<WebhookResponse> {
     // Ensure sessionId is not empty
     const safeSessionId = sessionId || `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId: safeSessionId }, 'GET');
+    return N8nService.getInstance().sendWebhookRequest('chat', { message, sessionId: safeSessionId, type: 'chat' }, 'GET');
   }
   
   /**

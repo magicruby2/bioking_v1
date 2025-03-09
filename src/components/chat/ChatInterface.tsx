@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -157,7 +158,7 @@ export function ChatInterface() {
         setIsSessionInitialized(true);
         const chatMessages = updatedMessages.map(convertToChatMessage);
         
-        const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
+        const sessionType = mode || 'chat';
         
         const sessionToUpdate = {
           id: currentSessionId,
@@ -166,7 +167,7 @@ export function ChatInterface() {
           createdAt: new Date().toISOString(),
           messages: chatMessages,
           type: sessionType,
-          folderId: sessionType === 'report' ? 'reports' : 'chat'
+          folderId: sessionType === 'report' ? 'reports' : (sessionType === 'research' ? 'research' : 'chat')
         };
         
         saveSession(sessionToUpdate);
@@ -201,7 +202,7 @@ export function ChatInterface() {
         
         if (currentSessionId) {
           const chatMessages = finalMessages.map(convertToChatMessage);
-          const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
+          const sessionType = mode || 'chat';
           
           const sessionToUpdate = {
             id: currentSessionId,
@@ -210,7 +211,7 @@ export function ChatInterface() {
             createdAt: new Date().toISOString(),
             messages: chatMessages,
             type: sessionType,
-            folderId: sessionType === 'report' ? 'reports' : 'chat'
+            folderId: sessionType === 'report' ? 'reports' : (sessionType === 'research' ? 'research' : 'chat')
           };
           
           saveSession(sessionToUpdate);
@@ -242,7 +243,7 @@ export function ChatInterface() {
       
       if (currentSessionId && isSessionInitialized) {
         const chatMessages = finalMessages.map(convertToChatMessage);
-        const sessionType: 'chat' | 'research' | 'report' = mode || 'chat';
+        const sessionType = mode || 'chat';
         
         saveSession({
           id: currentSessionId,
@@ -251,7 +252,7 @@ export function ChatInterface() {
           createdAt: new Date().toISOString(),
           messages: chatMessages,
           type: sessionType,
-          folderId: sessionType === 'report' ? 'reports' : 'chat'
+          folderId: sessionType === 'report' ? 'reports' : (sessionType === 'research' ? 'research' : 'chat')
         });
         
         await fetchSessions();
