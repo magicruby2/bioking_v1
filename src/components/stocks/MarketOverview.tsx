@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight, Pill, Newspaper, Calendar } from 'lucide-react';
@@ -337,20 +336,6 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
           </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Related News Section */}
-      <div className="mt-8">
-        <div className="flex items-center mb-4">
-          <Newspaper className="h-5 w-5 mr-2" />
-          <h2 className="text-xl font-bold">Related News</h2>
-        </div>
-        
-        <div className="space-y-4">
-          {pharmaNews.map((article) => (
-            <ArticleCard key={article.id} article={article} />
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
