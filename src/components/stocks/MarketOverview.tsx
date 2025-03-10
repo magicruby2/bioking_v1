@@ -6,7 +6,7 @@ import SearchBar from './SearchBar';
 import MarketIndices from './MarketIndices';
 import TrendingStocks from './TrendingStocks';
 import PharmaStocks from './PharmaStocks';
-import SectorList from './SectorList';
+import DiseasesList from './DiseasesList';
 
 // Define the stock interface for n8n trending stocks
 interface N8nStock {
@@ -53,9 +53,9 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
             <Pill className="h-4 w-4 mr-2" />
             Pharmaceutical
           </TabsTrigger>
-          <TabsTrigger value="sectors" className="flex items-center">
+          <TabsTrigger value="diseases" className="flex items-center">
             <BarChart2 className="h-4 w-4 mr-2" />
-            Sectors
+            Diseases
           </TabsTrigger>
         </TabsList>
         
@@ -67,8 +67,8 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
           <PharmaStocks stocks={pharmaStocks} />
         </TabsContent>
         
-        <TabsContent value="sectors">
-          <SectorList />
+        <TabsContent value="diseases">
+          <DiseasesList />
         </TabsContent>
       </Tabs>
     </div>
