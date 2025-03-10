@@ -1,9 +1,12 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight, Pill } from 'lucide-react';
+import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight, Pill, Newspaper } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAllStocks, getStocksByCategory } from './stockSummaryData';
+import ArticleCard from '../news/ArticleCard';
+import { dummyNewsData } from '../news/dummyData';
 
 // Mock data for market indices
 const marketIndices = [
@@ -41,6 +44,11 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
+  
+  // Filter news data to get pharma related news
+  const pharmaNews = dummyNewsData.filter(news => 
+    news.category === 'healthcare' || news.category === 'business'
+  ).slice(0, 3); // Get top 3 relevant news
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,13 +88,14 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
     setShowResults(false);
   };
   
-  // Use the n8n trending stocks if provided, otherwise fall back to local data
-  const displayTrendingStocks = trendingStocks && trendingStocks.length > 0 
-    ? trendingStocks 
-    : getStocksByCategory("trending");
-    
+  // Get pharmaceutical stocks for trending display
   const pharmaStocks = getStocksByCategory("pharma");
   
+  // Use the top 3 pharmaceutical stocks as trending if no n8n data
+  const displayTrendingStocks = trendingStocks && trendingStocks.length > 0 
+    ? trendingStocks 
+    : pharmaStocks.slice(0, 3); // Only show top 3 pharma stocks as trending
+    
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4 md:flex-row md:justify-between md:items-center">
@@ -257,6 +266,22 @@ export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Related News Section */}
+      <div className="mt-8">
+        <div className="flex items-center mb-4">
+          <Newspaper className="h-5 w-5 mr-2" />
+          <h2 className="text-xl font-bold">Related News</h2>
+        </div>
+        
+        <div className="space-y-4">
+          {pharmaNews.map((article) => (
+            <ArticleCard key={article.id} article={article} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
+
+export default MarketOverview;

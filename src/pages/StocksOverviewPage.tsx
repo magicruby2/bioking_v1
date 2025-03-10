@@ -30,11 +30,12 @@ const StocksOverviewPage = () => {
             description: "Successfully connected to the stocks webhook",
           });
           
-          // Simulate getting trending stocks from n8n
-          // In a real implementation, this would come from the response data
+          // Get top 3 pharmaceutical stocks as trending from n8n
           const trendingResponse = await N8nService.fetchTrendingStocks();
           if (trendingResponse.success && trendingResponse.data) {
-            setTrendingStocks(trendingResponse.data.stocks || []);
+            // Use only 3 stocks for trending display
+            const stocks = trendingResponse.data.stocks || [];
+            setTrendingStocks(stocks.slice(0, 3));
           }
         } else {
           console.error('Failed to connect to n8n webhook:', response.error);
