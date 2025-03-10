@@ -30,7 +30,14 @@ const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
             <div className="flex items-start">
               <div className="flex-1">
                 {item.id ? (
-                  <Link to={`/article/${item.id}`} className="font-medium hover:text-primary hover:underline">
+                  <Link 
+                    to={`/article/${item.id}`} 
+                    className="font-medium hover:text-primary hover:underline"
+                    onClick={(e) => {
+                      // Ensure the event propagates correctly
+                      e.stopPropagation();
+                    }}
+                  >
                     {item.title}
                   </Link>
                 ) : (
