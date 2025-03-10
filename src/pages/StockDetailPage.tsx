@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
@@ -20,15 +19,12 @@ const StockDetailPage = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
   
-  // Here we would typically fetch data for the specific stock
   useEffect(() => {
     const fetchStockData = async () => {
       console.log(`Fetching data for stock: ${symbol}`);
       setLoading(true);
       
       try {
-        // In a real implementation, this would fetch stock data from n8n
-        // For now we'll simulate a delay and use our local data
         const response = await N8nService.fetchStockData(symbol || 'AAPL', '1D');
         
         if (response.success) {
@@ -37,7 +33,6 @@ const StockDetailPage = () => {
           console.error('Failed to fetch stock data:', response.error);
         }
         
-        // Show toast when stock data is loaded
         toast({
           title: `${symbol} data loaded`,
           description: "Stock information has been retrieved successfully",
@@ -58,7 +53,7 @@ const StockDetailPage = () => {
   }, [symbol, toast]);
   
   const handleBack = () => {
-    navigate(-1); // Navigate back to the previous page
+    navigate(-1);
   };
   
   return (
@@ -66,24 +61,22 @@ const StockDetailPage = () => {
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <main>
-            <div className="container py-6">
-              <div className="mb-6">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleBack}
-                  className="mb-4"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Stocks
-                </Button>
-                
-                <StockSummary symbol={symbol || 'AAPL'} loading={loading} />
-              </div>
+        <ScrollArea className="h-full w-full">
+          <div className="container py-6 pb-20">
+            <div className="mb-6">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBack}
+                className="mb-4"
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back to Stocks
+              </Button>
+              
+              <StockSummary symbol={symbol || 'AAPL'} loading={loading} />
             </div>
-          </main>
+          </div>
         </ScrollArea>
       </div>
     </div>

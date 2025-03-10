@@ -66,16 +66,16 @@ const StocksOverviewPage = () => {
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <main className="p-4 md:p-6 max-w-7xl mx-auto">
+        <ScrollArea className="h-full w-full">
+          <div className="p-4 md:p-6 max-w-7xl mx-auto pb-20">
             {isLoading ? (
-              <div className="flex items-center justify-center h-full">
+              <div className="flex items-center justify-center h-40">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
               </div>
             ) : (
               <MarketOverview trendingStocks={trendingStocks} />
             )}
-          </main>
+          </div>
         </ScrollArea>
       </div>
     </div>
