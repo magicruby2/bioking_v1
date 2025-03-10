@@ -1,9 +1,11 @@
 
 import { Calendar } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface NewsItem {
   title: string;
   date: string;
+  id?: string; // Add optional ID for navigation
 }
 
 interface StockNewsItemProps {
@@ -27,7 +29,13 @@ const StockNewsItem = ({ symbol, name, news }: StockNewsItemProps) => {
           <li key={index} className="hover:bg-muted/50 p-2 rounded transition-colors">
             <div className="flex items-start">
               <div className="flex-1">
-                <p className="font-medium">{item.title}</p>
+                {item.id ? (
+                  <Link to={`/article/${item.id}`} className="font-medium hover:text-primary hover:underline">
+                    {item.title}
+                  </Link>
+                ) : (
+                  <p className="font-medium">{item.title}</p>
+                )}
                 <div className="flex items-center text-xs text-muted-foreground mt-1">
                   <Calendar className="h-3 w-3 mr-1" />
                   {item.date}
