@@ -1,6 +1,7 @@
 
 import { Clock, ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { NewsArticle } from './types';
+import { Link } from 'react-router-dom';
 
 interface ArticleCardProps {
   article: NewsArticle;
@@ -72,15 +73,13 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
               </span>
             </div>
             
-            <a
-              href={article.url}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={`/article/${article.id}`}
               className="inline-flex items-center rounded-md px-3 py-1 text-xs font-medium text-primary hover:underline"
             >
               Read more
               <ExternalLink className="ml-1 h-3 w-3" />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

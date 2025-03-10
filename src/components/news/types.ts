@@ -9,6 +9,7 @@ export interface NewsArticle {
   imageUrl?: string;
   category: string;
   readTime: number;
+  content?: string; // Added content field
 }
 
 export interface Category {

@@ -9,6 +9,7 @@ import ChatPage from "./pages/ChatPage";
 import StocksOverviewPage from "./pages/StocksOverviewPage";
 import StockDetailPage from "./pages/StockDetailPage";
 import NewsPage from "./pages/NewsPage";
+import ArticlePage from "./pages/ArticlePage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/stocks" element={<StocksOverviewPage />} />
           <Route path="/stock/:symbol" element={<StockDetailPage />} />
           <Route path="/news" element={<NewsPage />} />
+          <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
