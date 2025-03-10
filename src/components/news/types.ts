@@ -18,6 +18,8 @@ export interface Category {
 
 export const categories: Category[] = [
   { id: 'all', name: 'All News' },
+  { id: 'pharmaceutical', name: 'Pharmaceutical' },
+  { id: 'regulatory', name: 'Regulatory' },
   { id: 'technology', name: 'Technology' },
   { id: 'finance', name: 'Finance' },
   { id: 'business', name: 'Business' },
