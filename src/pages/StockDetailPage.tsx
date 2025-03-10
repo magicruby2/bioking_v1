@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import N8nService from '@/services/n8nService';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const StockDetailPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -64,24 +65,26 @@ const StockDetailPage = () => {
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
-      <div className="flex-1 overflow-auto">
-        <main className="h-full">
-          <div className="container py-6">
-            <div className="mb-6">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleBack}
-                className="mb-4"
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Stocks
-              </Button>
-              
-              <StockSummary symbol={symbol || 'AAPL'} loading={loading} />
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <main>
+            <div className="container py-6">
+              <div className="mb-6">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleBack}
+                  className="mb-4"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Stocks
+                </Button>
+                
+                <StockSummary symbol={symbol || 'AAPL'} loading={loading} />
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </ScrollArea>
       </div>
     </div>
   );

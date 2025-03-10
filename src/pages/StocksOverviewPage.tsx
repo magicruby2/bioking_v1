@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/layout/Header';
 import { MarketOverview } from '@/components/stocks/MarketOverview';
 import N8nService from '@/services/n8nService';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const StocksOverviewPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -65,15 +66,17 @@ const StocksOverviewPage = () => {
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
       
       <div className="flex-1 overflow-hidden">
-        <main className="h-full p-4 md:p-6 max-w-7xl mx-auto">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            <MarketOverview trendingStocks={trendingStocks} />
-          )}
-        </main>
+        <ScrollArea className="h-full">
+          <main className="p-4 md:p-6 max-w-7xl mx-auto">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <MarketOverview trendingStocks={trendingStocks} />
+            )}
+          </main>
+        </ScrollArea>
       </div>
     </div>
   );
