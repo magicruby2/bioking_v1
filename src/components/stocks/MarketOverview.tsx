@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight, Pill } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getAllStocks, getStocksByCategory } from './stockSummaryData';
 
 // Mock data for market indices
 const marketIndices = [
@@ -11,16 +12,6 @@ const marketIndices = [
   { name: "Dow Jones", value: "37,986.40", change: "+0.35%", isPositive: true },
   { name: "NASDAQ", value: "14,261.50", change: "-0.28%", isPositive: false },
   { name: "Russell 2000", value: "1,941.85", change: "+0.67%", isPositive: true },
-];
-
-// Mock data for trending stocks
-const trendingStocks = [
-  { symbol: "AAPL", name: "Apple Inc.", price: "186.30", change: "+2.14%", isPositive: true },
-  { symbol: "MSFT", name: "Microsoft Corp.", price: "347.16", change: "+1.58%", isPositive: true },
-  { symbol: "GOOGL", name: "Alphabet Inc.", price: "157.73", change: "-0.45%", isPositive: false },
-  { symbol: "AMZN", name: "Amazon.com Inc.", price: "179.63", change: "+0.92%", isPositive: true },
-  { symbol: "TSLA", name: "Tesla Inc.", price: "223.91", change: "-1.87%", isPositive: false },
-  { symbol: "META", name: "Meta Platforms Inc.", price: "435.39", change: "+3.15%", isPositive: true },
 ];
 
 // Mock data for sectors
@@ -35,14 +26,50 @@ const sectors = [
 
 export function MarketOverview() {
   const [searchInput, setSearchInput] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const navigate = useNavigate();
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchInput.trim()) {
-      navigate(`/stock/${searchInput.toUpperCase()}`);
+      const matchedStock = getAllStocks().find(stock => 
+        stock.symbol.toLowerCase() === searchInput.toLowerCase() ||
+        stock.name.toLowerCase().includes(searchInput.toLowerCase())
+      );
+      
+      if (matchedStock) {
+        navigate(`/stock/${matchedStock.symbol}`);
+        setSearchInput('');
+        setShowResults(false);
+      }
     }
   };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchInput(value);
+    
+    if (value.trim().length > 0) {
+      const filtered = getAllStocks().filter(stock => 
+        stock.symbol.toLowerCase().includes(value.toLowerCase()) ||
+        stock.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setSearchResults(filtered.slice(0, 5)); // Limit to 5 results
+      setShowResults(true);
+    } else {
+      setShowResults(false);
+    }
+  };
+  
+  const handleResultClick = (symbol: string) => {
+    navigate(`/stock/${symbol}`);
+    setSearchInput('');
+    setShowResults(false);
+  };
+  
+  const trendingStocks = getStocksByCategory("trending");
+  const pharmaStocks = getStocksByCategory("pharma");
   
   return (
     <div className="space-y-6">
@@ -52,15 +79,24 @@ export function MarketOverview() {
           <p className="text-muted-foreground">Latest market trends and performance</p>
         </div>
         
-        <form onSubmit={handleSearch} className="flex w-full md:w-auto">
+        <form onSubmit={handleSearch} className="flex w-full md:w-auto relative">
           <div className="relative flex flex-1 md:w-64">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search symbol..."
+              onChange={handleInputChange}
+              placeholder="Search symbol or company..."
               className="flex h-10 w-full rounded-l-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              onBlur={() => {
+                // Delay hiding results to allow for clicks
+                setTimeout(() => setShowResults(false), 200);
+              }}
+              onFocus={() => {
+                if (searchInput.trim().length > 0) {
+                  setShowResults(true);
+                }
+              }}
             />
           </div>
           <button
@@ -69,6 +105,26 @@ export function MarketOverview() {
           >
             Search
           </button>
+          
+          {showResults && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-input rounded-md shadow-lg z-10 max-h-60 overflow-auto">
+              {searchResults.map((stock) => (
+                <div
+                  key={stock.symbol}
+                  className="px-4 py-2 hover:bg-muted cursor-pointer flex items-center justify-between"
+                  onClick={() => handleResultClick(stock.symbol)}
+                >
+                  <div>
+                    <div className="font-medium">{stock.symbol}</div>
+                    <div className="text-sm text-muted-foreground">{stock.name}</div>
+                  </div>
+                  <div className={`${stock.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    ${stock.price.toFixed(2)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </form>
       </div>
       
@@ -94,10 +150,14 @@ export function MarketOverview() {
       </div>
       
       <Tabs defaultValue="trending" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
+        <TabsList className="grid w-full grid-cols-3 mb-4">
           <TabsTrigger value="trending" className="flex items-center">
             <TrendingUp className="h-4 w-4 mr-2" />
             Trending Stocks
+          </TabsTrigger>
+          <TabsTrigger value="pharma" className="flex items-center">
+            <Pill className="h-4 w-4 mr-2" />
+            Pharmaceutical
           </TabsTrigger>
           <TabsTrigger value="sectors" className="flex items-center">
             <BarChart2 className="h-4 w-4 mr-2" />
@@ -116,16 +176,43 @@ export function MarketOverview() {
                       <p className="font-bold">{stock.symbol}</p>
                       <p className="text-sm text-muted-foreground">{stock.name}</p>
                     </div>
-                    <div className={`flex items-center ${stock.isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                      {stock.isPositive ? (
+                    <div className={`flex items-center ${stock.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {stock.percentChange >= 0 ? (
                         <ArrowUpRight className="h-4 w-4 mr-1" />
                       ) : (
                         <ArrowDownRight className="h-4 w-4 mr-1" />
                       )}
-                      <span>{stock.change}</span>
+                      <span>{stock.percentChange >= 0 ? "+" : ""}{stock.percentChange.toFixed(2)}%</span>
                     </div>
                   </div>
-                  <p className="text-xl font-bold mt-2">${stock.price}</p>
+                  <p className="text-xl font-bold mt-2">${stock.price.toFixed(2)}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="pharma" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pharmaStocks.map((stock) => (
+              <Card key={stock.symbol} className="hover:shadow-md transition-all cursor-pointer" 
+                onClick={() => navigate(`/stock/${stock.symbol}`)}>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="font-bold">{stock.symbol}</p>
+                      <p className="text-sm text-muted-foreground">{stock.name}</p>
+                    </div>
+                    <div className={`flex items-center ${stock.percentChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {stock.percentChange >= 0 ? (
+                        <ArrowUpRight className="h-4 w-4 mr-1" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4 mr-1" />
+                      )}
+                      <span>{stock.percentChange >= 0 ? "+" : ""}{stock.percentChange.toFixed(2)}%</span>
+                    </div>
+                  </div>
+                  <p className="text-xl font-bold mt-2">${stock.price.toFixed(2)}</p>
                 </CardContent>
               </Card>
             ))}

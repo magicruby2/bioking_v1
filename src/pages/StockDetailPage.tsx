@@ -5,12 +5,14 @@ import Header from '@/components/layout/Header';
 import StockSummary from '@/components/stocks/StockSummary';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const StockDetailPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -22,10 +24,15 @@ const StockDetailPage = () => {
     // Simulate loading time (in a real app, this would be a PostgreSQL query)
     const timer = setTimeout(() => {
       setLoading(false);
+      // Show toast when stock data is loaded
+      toast({
+        title: `${symbol} data loaded`,
+        description: "Stock information has been retrieved successfully",
+      });
     }, 800);
     
     return () => clearTimeout(timer);
-  }, [symbol]);
+  }, [symbol, toast]);
   
   const handleBack = () => {
     navigate(-1); // Navigate back to the previous page
