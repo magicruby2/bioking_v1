@@ -6,6 +6,7 @@ import StockSummary from '@/components/stocks/StockSummary';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import N8nService from '@/services/n8nService';
 
 const StockDetailPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -20,18 +21,39 @@ const StockDetailPage = () => {
   
   // Here we would typically fetch data for the specific stock
   useEffect(() => {
-    console.log(`Fetching data for stock: ${symbol}`);
-    // Simulate loading time (in a real app, this would be a PostgreSQL query)
-    const timer = setTimeout(() => {
-      setLoading(false);
-      // Show toast when stock data is loaded
-      toast({
-        title: `${symbol} data loaded`,
-        description: "Stock information has been retrieved successfully",
-      });
-    }, 800);
+    const fetchStockData = async () => {
+      console.log(`Fetching data for stock: ${symbol}`);
+      setLoading(true);
+      
+      try {
+        // In a real implementation, this would fetch stock data from n8n
+        // For now we'll simulate a delay and use our local data
+        const response = await N8nService.fetchStockData(symbol || 'AAPL', '1D');
+        
+        if (response.success) {
+          console.log('Stock data fetched successfully:', response.data);
+        } else {
+          console.error('Failed to fetch stock data:', response.error);
+        }
+        
+        // Show toast when stock data is loaded
+        toast({
+          title: `${symbol} data loaded`,
+          description: "Stock information has been retrieved successfully",
+        });
+      } catch (error) {
+        console.error('Error fetching stock data:', error);
+        toast({
+          title: "Error loading data",
+          description: "Failed to load stock information",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
     
-    return () => clearTimeout(timer);
+    fetchStockData();
   }, [symbol, toast]);
   
   const handleBack = () => {

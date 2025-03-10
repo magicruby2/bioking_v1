@@ -9,6 +9,7 @@ import N8nService from '@/services/n8nService';
 const StocksOverviewPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [trendingStocks, setTrendingStocks] = useState([]);
   const { toast } = useToast();
   
   const toggleSidebar = () => {
@@ -16,8 +17,9 @@ const StocksOverviewPage = () => {
   };
   
   useEffect(() => {
-    const connectToN8n = async () => {
+    const loadData = async () => {
       try {
+        // Connect to n8n webhook
         const userAgent = navigator.userAgent;
         const response = await N8nService.sendStocksOverviewVisit(userAgent);
         
@@ -27,6 +29,13 @@ const StocksOverviewPage = () => {
             title: "Connected to n8n",
             description: "Successfully connected to the stocks webhook",
           });
+          
+          // Simulate getting trending stocks from n8n
+          // In a real implementation, this would come from the response data
+          const trendingResponse = await N8nService.fetchTrendingStocks();
+          if (trendingResponse.success && trendingResponse.data) {
+            setTrendingStocks(trendingResponse.data.stocks || []);
+          }
         } else {
           console.error('Failed to connect to n8n webhook:', response.error);
           toast({
@@ -47,7 +56,7 @@ const StocksOverviewPage = () => {
       }
     };
     
-    connectToN8n();
+    loadData();
   }, [toast]);
   
   return (
@@ -61,7 +70,7 @@ const StocksOverviewPage = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
           ) : (
-            <MarketOverview />
+            <MarketOverview trendingStocks={trendingStocks} />
           )}
         </main>
       </div>

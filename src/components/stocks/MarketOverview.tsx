@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, TrendingUp, BarChart2, ArrowUpRight, ArrowDownRight, Pill } from 'lucide-react';
@@ -24,7 +23,20 @@ const sectors = [
   { name: "Communication Services", change: "+0.95%", isPositive: true },
 ];
 
-export function MarketOverview() {
+// Define the stock interface for n8n trending stocks
+interface N8nStock {
+  symbol: string;
+  name: string;
+  price: number;
+  percentChange: number;
+  volume: number;
+}
+
+interface MarketOverviewProps {
+  trendingStocks?: N8nStock[];
+}
+
+export function MarketOverview({ trendingStocks = [] }: MarketOverviewProps) {
   const [searchInput, setSearchInput] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
@@ -68,7 +80,11 @@ export function MarketOverview() {
     setShowResults(false);
   };
   
-  const trendingStocks = getStocksByCategory("trending");
+  // Use the n8n trending stocks if provided, otherwise fall back to local data
+  const displayTrendingStocks = trendingStocks && trendingStocks.length > 0 
+    ? trendingStocks 
+    : getStocksByCategory("trending");
+    
   const pharmaStocks = getStocksByCategory("pharma");
   
   return (
@@ -167,7 +183,7 @@ export function MarketOverview() {
         
         <TabsContent value="trending" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {trendingStocks.map((stock) => (
+            {displayTrendingStocks.map((stock) => (
               <Card key={stock.symbol} className="hover:shadow-md transition-all cursor-pointer" 
                 onClick={() => navigate(`/stock/${stock.symbol}`)}>
                 <CardContent className="p-4">
