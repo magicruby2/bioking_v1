@@ -54,7 +54,16 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
           </div>
           
           <h2 className="mt-2 text-xl font-bold leading-tight">
-            {article.title}
+            <Link 
+              to={`/article/${article.id}`} 
+              className="hover:text-primary hover:underline"
+              onClick={(e) => {
+                // Ensure the event propagates correctly
+                e.stopPropagation();
+              }}
+            >
+              {article.title}
+            </Link>
           </h2>
           
           <p className="mt-2 flex-1 text-sm text-muted-foreground">
