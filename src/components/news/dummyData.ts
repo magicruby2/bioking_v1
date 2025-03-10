@@ -65,7 +65,7 @@ export const dummyNewsData: NewsArticle[] = [
     publishedAt: '2023-10-07T10:45:00Z',
     url: '#',
     imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f',
-    category: 'pharmaceutical',
+    category: 'regulatory',
     readTime: 5
   },
   {
