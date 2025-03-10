@@ -37,8 +37,8 @@ export const dummyNewsData: NewsArticle[] = [
   },
   {
     id: '4',
-    title: 'Merck's Keytruda Shows Promise for New Cancer Indications',
-    summary: 'New clinical data suggests Merck's blockbuster immunotherapy drug Keytruda may be effective against additional cancer types, potentially expanding its already substantial market reach.',
+    title: "Merck's Keytruda Shows Promise for New Cancer Indications",
+    summary: "New clinical data suggests Merck's blockbuster immunotherapy drug Keytruda may be effective against additional cancer types, potentially expanding its already substantial market reach.",
     source: 'MedScience Review',
     publishedAt: '2023-10-09T16:20:00Z',
     url: '#',
