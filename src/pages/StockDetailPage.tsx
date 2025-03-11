@@ -69,7 +69,7 @@ const StockDetailPage = () => {
         <div className="grid grid-cols-2 h-full">
           {/* Left half - Stock summary */}
           <div className="border-r border-border/40">
-            <ScrollArea className="h-full w-full">
+            <ScrollArea className="h-full">
               <div className="p-6 pb-20">
                 <Button 
                   variant="outline" 
@@ -88,7 +88,7 @@ const StockDetailPage = () => {
           
           {/* Right half - Analysis */}
           <div>
-            <ScrollArea className="h-full w-full">
+            <ScrollArea className="h-full">
               <div className="p-6 pb-20">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">
