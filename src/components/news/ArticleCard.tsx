@@ -30,29 +30,6 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     >
       <div className="flex flex-col">
         <div className="flex gap-4 p-3">
-          {/* Grade Selection Toolbar */}
-          {onGradeChange && (
-            <div className="flex flex-col justify-center">
-              <div className="flex flex-col gap-1">
-                {importanceGrades.slice(1).map((grade) => (
-                  <Button
-                    key={grade.id}
-                    size="sm"
-                    variant={article.grade === grade.id ? "default" : "outline"}
-                    className={cn(
-                      "text-xs h-5 px-2 py-0 min-w-0",
-                      article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
-                    )}
-                    onClick={() => onGradeChange(article.id, grade.id)}
-                  >
-                    {article.grade === grade.id && <Check className="h-3 w-3" />}
-                    <span>{grade.name}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-          
           {article.imageUrl && (
             <div className="w-32 h-24">
               <img
@@ -103,6 +80,29 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
               </Link>
             </div>
           </div>
+          
+          {/* Grade Selection Toolbar - Moved to the right side */}
+          {onGradeChange && (
+            <div className="flex flex-col justify-center ml-auto">
+              <div className="flex flex-col gap-1">
+                {importanceGrades.slice(1).map((grade) => (
+                  <Button
+                    key={grade.id}
+                    size="sm"
+                    variant={article.grade === grade.id ? "default" : "outline"}
+                    className={cn(
+                      "text-xs h-5 px-2 py-0 min-w-0",
+                      article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
+                    )}
+                    onClick={() => onGradeChange(article.id, grade.id)}
+                  >
+                    {article.grade === grade.id && <Check className="h-3 w-3" />}
+                    <span>{grade.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </article>
