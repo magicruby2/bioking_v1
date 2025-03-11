@@ -59,7 +59,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
               </Link>
             </h2>
             
-            <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+            <div className="flex items-center text-xs text-muted-foreground mt-2">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium text-foreground">{article.source}</span>
                 <span>•</span>
@@ -70,14 +70,6 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                   {article.readTime} min read
                 </span>
               </div>
-              
-              <Link
-                to={`/article/${article.id}`}
-                className="text-xs font-medium text-primary hover:underline flex items-center"
-              >
-                Read more
-                <ExternalLink className="h-3 w-3 ml-1" />
-              </Link>
             </div>
           </div>
           
