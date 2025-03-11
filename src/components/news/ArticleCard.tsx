@@ -127,7 +127,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
               </Link>
             </div>
             
-            {/* Redesigned grade buttons - more compact and neater */}
+            {/* Super compact grade buttons */}
             {onGradeChange && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {importanceGrades.slice(1).map((grade) => (
