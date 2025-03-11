@@ -37,30 +37,30 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
       )}
     >
       <div className="flex flex-col">
-        {/* Grade Selection Toolbar */}
-        {onGradeChange && (
-          <div className="flex justify-end p-3 pb-1 border-b border-border/20">
-            <div className="flex flex-wrap gap-1.5">
-              {importanceGrades.slice(1).map((grade) => (
-                <Button
-                  key={grade.id}
-                  size="sm"
-                  variant={article.grade === grade.id ? "default" : "outline"}
-                  className={cn(
-                    "text-xs h-8 px-2 py-1 min-w-0",
-                    article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
-                  )}
-                  onClick={() => onGradeChange(article.id, grade.id)}
-                >
-                  {article.grade === grade.id && <Check className="h-3 w-3" />}
-                  <span>{grade.name}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-      
         <div className="flex gap-4 p-3">
+          {/* Grade Selection Toolbar */}
+          {onGradeChange && (
+            <div className="flex flex-col justify-center">
+              <div className="flex flex-col gap-1">
+                {importanceGrades.slice(1).map((grade) => (
+                  <Button
+                    key={grade.id}
+                    size="sm"
+                    variant={article.grade === grade.id ? "default" : "outline"}
+                    className={cn(
+                      "text-xs h-6 px-2 py-0.5 min-w-0",
+                      article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
+                    )}
+                    onClick={() => onGradeChange(article.id, grade.id)}
+                  >
+                    {article.grade === grade.id && <Check className="h-3 w-3" />}
+                    <span>{grade.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+          
           {article.imageUrl && (
             <div className="w-32 h-24">
               <img
@@ -77,11 +77,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
                   {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
                 </span>
-                
-                {/* Grade tag removed */}
               </div>
-              
-              {/* Bookmark and Share buttons removed */}
             </div>
             
             <h2 className="text-base font-semibold leading-tight mb-1">
