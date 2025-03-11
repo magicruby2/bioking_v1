@@ -63,12 +63,12 @@ const StockSummary = ({ symbol, loading = false }: StockSummaryProps) => {
   const trendColor = isPositive ? "text-green-500" : "text-red-500";
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-1">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-1">
                 {stockSummary.name} ({stockSummary.symbol})
               </h1>
               <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ const StockSummary = ({ symbol, loading = false }: StockSummaryProps) => {
             </div>
             
             <div className="mt-4 md:mt-0 text-right">
-              <div className="text-3xl font-bold">${stockSummary.price.toFixed(2)}</div>
+              <div className="text-2xl font-bold">${stockSummary.price.toFixed(2)}</div>
               <div className={`flex items-center justify-end gap-1 ${trendColor}`}>
                 <TrendIcon className="h-4 w-4" />
                 <span className="font-medium">${Math.abs(stockSummary.priceChange).toFixed(2)} ({Math.abs(stockSummary.percentChange).toFixed(2)}%)</span>
@@ -106,10 +106,6 @@ const StockSummary = ({ symbol, loading = false }: StockSummaryProps) => {
             <Activity className="h-4 w-4" />
             <span>Fundamentals</span>
           </TabsTrigger>
-          <TabsTrigger value="analysis" className="flex items-center gap-1">
-            <FileText className="h-4 w-4" />
-            <span>Analysis</span>
-          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="overview" className="space-y-4">
@@ -118,7 +114,7 @@ const StockSummary = ({ symbol, loading = false }: StockSummaryProps) => {
               <CardTitle className="text-lg">Key Statistics</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <span className="text-sm text-muted-foreground">Market Cap</span>
                   <p className="font-medium">{stockSummary.marketCap}</p>
@@ -151,34 +147,9 @@ const StockSummary = ({ symbol, loading = false }: StockSummaryProps) => {
             onToggleCollapse={toggleFundamentals}
           />
         </TabsContent>
-        
-        <TabsContent value="analysis" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Company Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: markdownToHtml(stockSummary.description) }} />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );
 };
-
-// Simple markdown to HTML converter (in a real app, you would use a proper markdown library)
-function markdownToHtml(markdown: string): string {
-  return markdown
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
-    .replace(/^\- (.*$)/gim, '<ul><li>$1</li></ul>')
-    .replace(/^\* (.*$)/gim, '<ul><li>$1</li></ul>')
-    .replace(/\n/gim, '<br>')
-    .replace(/<\/ul>\s*<ul>/gim, '');
-}
 
 export default StockSummary;
