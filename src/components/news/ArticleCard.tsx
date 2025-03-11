@@ -1,5 +1,5 @@
 
-import { Clock, ExternalLink, Bookmark, Share2, Check } from 'lucide-react';
+import { Clock, ExternalLink } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
       <div className="flex flex-col">
         {/* Grade Selection Toolbar */}
         {onGradeChange && (
-          <div className="flex justify-end p-2 pb-0 border-b border-border/20">
+          <div className="flex justify-end p-3 pb-1 border-b border-border/20">
             <div className="flex flex-wrap gap-1.5">
               {importanceGrades.slice(1).map((grade) => (
                 <Button
@@ -47,7 +47,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                   size="sm"
                   variant={article.grade === grade.id ? "default" : "outline"}
                   className={cn(
-                    "text-xs h-6 px-2 py-1 min-w-0",
+                    "text-xs h-8 px-2 py-1 min-w-0",
                     article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
                   )}
                   onClick={() => onGradeChange(article.id, grade.id)}
@@ -78,23 +78,10 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                   {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
                 </span>
                 
-                {article.grade && gradeInfo && (
-                  <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", gradeInfo.color)}>
-                    {gradeInfo.name}
-                  </span>
-                )}
+                {/* Grade tag removed */}
               </div>
               
-              <div className="flex items-center gap-1">
-                <button className="h-6 w-6 rounded-md hover:bg-secondary flex items-center justify-center">
-                  <Bookmark className="h-3 w-3" />
-                  <span className="sr-only">Save article</span>
-                </button>
-                <button className="h-6 w-6 rounded-md hover:bg-secondary flex items-center justify-center">
-                  <Share2 className="h-3 w-3" />
-                  <span className="sr-only">Share article</span>
-                </button>
-              </div>
+              {/* Bookmark and Share buttons removed */}
             </div>
             
             <h2 className="text-base font-semibold leading-tight mb-1">
