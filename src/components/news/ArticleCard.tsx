@@ -24,6 +24,21 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     importanceGrades.find(g => g.id === article.grade) : 
     importanceGrades[0];
 
+  const getGradeGradient = (grade: string) => {
+    switch (grade) {
+      case 'critical':
+        return 'bg-gradient-to-r from-yellow-500 via-yellow-600 to-black';
+      case 'important':
+        return 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-neutral-900';
+      case 'useful':
+        return 'bg-gradient-to-r from-yellow-300 via-yellow-400 to-neutral-800';
+      case 'interesting':
+        return 'bg-gradient-to-r from-yellow-200 via-yellow-300 to-neutral-700';
+      default:
+        return 'bg-secondary';
+    }
+  };
+
   return (
     <article 
       className="overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200"
@@ -73,7 +88,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
             </div>
           </div>
           
-          {/* Grade Selection Toolbar - Moved to the right side */}
+          {/* Grade Selection Toolbar */}
           {onGradeChange && (
             <div className="flex flex-col justify-center ml-auto">
               <div className="flex flex-col gap-1">
@@ -84,7 +99,9 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                     variant={article.grade === grade.id ? "default" : "outline"}
                     className={cn(
                       "text-xs h-5 px-2 py-0 min-w-0",
-                      article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
+                      article.grade === grade.id ? 
+                        `${getGradeGradient(grade.id)} text-white flex items-center gap-1` : 
+                        "border-gray-200"
                     )}
                     onClick={() => onGradeChange(article.id, grade.id)}
                   >
