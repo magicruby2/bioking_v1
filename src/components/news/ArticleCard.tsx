@@ -1,5 +1,5 @@
 
-import { Clock, ExternalLink } from 'lucide-react';
+import { Clock, ExternalLink, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
