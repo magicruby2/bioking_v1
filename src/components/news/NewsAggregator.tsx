@@ -90,7 +90,7 @@ export function NewsAggregator() {
   const handleGradeChange = (articleId: string, grade: string) => {
     // Update the grade of the article
     const updatedArticles = newsArticles.map(article => 
-      article.id === articleId ? { ...article, grade } : article
+      article.id === articleId ? { ...article, grade: grade as NewsArticle['grade'] } : article
     );
     
     setNewsArticles(updatedArticles);
