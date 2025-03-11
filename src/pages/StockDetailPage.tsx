@@ -31,19 +31,26 @@ const StockDetailPage = () => {
         
         if (response.success) {
           console.log('Stock data fetched successfully:', response.data);
+          
+          toast({
+            title: `${symbol} data loaded`,
+            description: "Stock information has been retrieved successfully",
+          });
         } else {
           console.error('Failed to fetch stock data:', response.error);
+          
+          toast({
+            title: "Warning",
+            description: "Using fallback stock data as real-time data couldn't be fetched",
+            variant: "destructive",
+          });
         }
-        
-        toast({
-          title: `${symbol} data loaded`,
-          description: "Stock information has been retrieved successfully",
-        });
       } catch (error) {
         console.error('Error fetching stock data:', error);
+        
         toast({
-          title: "Error loading data",
-          description: "Failed to load stock information",
+          title: "Using sample data",
+          description: "Failed to connect to data service, using offline sample data",
           variant: "destructive",
         });
       } finally {
@@ -68,7 +75,7 @@ const StockDetailPage = () => {
       <div className="flex-1 overflow-hidden">
         <div className="grid grid-cols-2 h-full">
           {/* Left half - Stock summary */}
-          <div className="border-r border-border/40">
+          <div className="border-r border-border/40 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 pb-20">
                 <Button 
@@ -87,7 +94,7 @@ const StockDetailPage = () => {
           </div>
           
           {/* Right half - Analysis */}
-          <div>
+          <div className="overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 pb-20">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
