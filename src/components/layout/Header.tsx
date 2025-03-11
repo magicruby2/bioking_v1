@@ -1,7 +1,6 @@
-
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, X, Crown, Globe } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, Award, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -58,7 +57,7 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           <NavLink to="/" className="flex items-center">
             <span className="text-xl font-semibold tracking-tight flex items-center">
               BIO
-              <Crown 
+              <Award 
                 className="h-6 w-6 text-yellow-500 mx-0.5 drop-shadow-sm filter" 
                 strokeWidth={1.5}
                 fill="rgba(234, 179, 8, 0.2)"
