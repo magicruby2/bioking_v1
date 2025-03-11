@@ -18,7 +18,13 @@ const Index = () => {
         <div className="w-full max-w-md flex flex-col gap-6 order-2 md:order-1">
           <div className="space-y-2 text-center md:text-left">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center md:justify-start">
-              BIO<Crown className="h-8 w-8 text-yellow-500 mx-1" />ING
+              BIO
+              <Crown 
+                className="h-8 w-8 text-yellow-500 mx-1 drop-shadow-sm filter" 
+                strokeWidth={1.5}
+                fill="rgba(234, 179, 8, 0.2)"
+              />
+              ING
             </h1>
             <p className="text-xl text-muted-foreground">
               Your intelligent AI assistant powered by advanced n8n workflows
@@ -87,7 +93,13 @@ const Index = () => {
       <footer className="py-6 md:py-0 px-4 border-t bg-card/30 backdrop-blur-sm">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-sm text-muted-foreground">
-            © 2023 BIO<Crown className="h-4 w-4 text-yellow-500 inline mx-0.5" />ING. All rights reserved.
+            © 2023 BIO
+            <Crown 
+              className="h-4 w-4 text-yellow-500 inline mx-0.5 drop-shadow-sm" 
+              strokeWidth={1.5}
+              fill="rgba(234, 179, 8, 0.15)"
+            />
+            ING. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <Link to="/chat" className="text-sm text-muted-foreground hover:text-foreground transition-colors">

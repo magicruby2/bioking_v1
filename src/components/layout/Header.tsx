@@ -57,7 +57,13 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
           </button>
           <NavLink to="/" className="flex items-center">
             <span className="text-xl font-semibold tracking-tight flex items-center">
-              BIO<Crown className="h-5 w-5 text-yellow-500 mx-0.5" />ING
+              BIO
+              <Crown 
+                className="h-6 w-6 text-yellow-500 mx-0.5 drop-shadow-sm filter" 
+                strokeWidth={1.5}
+                fill="rgba(234, 179, 8, 0.2)"
+              />
+              ING
             </span>
           </NavLink>
         </div>
