@@ -10,7 +10,6 @@ import SearchBar from './SearchBar';
 import NoArticlesFound from './NoArticlesFound';
 import GradeFilter from './GradeFilter';
 import { Separator } from '@/components/ui/separator';
-import { Card } from '@/components/ui/card';
 
 export function NewsAggregator() {
   const { toast } = useToast();
@@ -105,7 +104,7 @@ export function NewsAggregator() {
   
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-4xl">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl font-bold">News Feed</h1>
           
@@ -125,39 +124,27 @@ export function NewsAggregator() {
         
         <Separator className="my-4" />
         
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Main news content area */}
-          <div className="flex-1 space-y-4">
-            {filteredArticles.length === 0 ? (
-              <NoArticlesFound />
-            ) : (
-              <div className="space-y-3">
-                {filteredArticles.map((article) => (
-                  <ArticleCard 
-                    key={article.id} 
-                    article={article} 
-                    onGradeChange={handleGradeChange}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-          
-          {/* Grade filter sidebar */}
-          <div className="md:w-64">
-            <Card className="p-4 sticky top-4">
-              <h3 className="font-medium mb-3">Filter by Importance</h3>
-              <GradeFilter 
-                selectedGrade={selectedGrade}
-                onSelectGrade={handleGradeSelect}
+        <GradeFilter 
+          selectedGrade={selectedGrade}
+          onSelectGrade={handleGradeSelect}
+        />
+        
+        {filteredArticles.length === 0 ? (
+          <NoArticlesFound />
+        ) : (
+          <div className="space-y-6">
+            {filteredArticles.map((article) => (
+              <ArticleCard 
+                key={article.id} 
+                article={article} 
+                onGradeChange={handleGradeChange}
               />
-            </Card>
+            ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
 export default NewsAggregator;
-
