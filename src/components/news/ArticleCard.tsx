@@ -1,5 +1,5 @@
 
-import { Clock, ExternalLink, Bookmark, Share2 } from 'lucide-react';
+import { Clock, ExternalLink, Bookmark, Share2, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -127,7 +127,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
               </Link>
             </div>
             
-            {/* Grade buttons */}
+            {/* Redesigned grade buttons - more compact and neater */}
             {onGradeChange && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {importanceGrades.slice(1).map((grade) => (
@@ -136,12 +136,13 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                     size="sm"
                     variant={article.grade === grade.id ? "default" : "outline"}
                     className={cn(
-                      "text-xs px-2 py-0 h-7",
-                      article.grade === grade.id ? grade.color : ""
+                      "text-xs h-6 px-2 py-0 min-w-0",
+                      article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
                     )}
                     onClick={() => onGradeChange(article.id, grade.id)}
                   >
-                    {grade.name}
+                    {article.grade === grade.id && <Check className="h-3 w-3" />}
+                    <span>{grade.name}</span>
                   </Button>
                 ))}
               </div>
