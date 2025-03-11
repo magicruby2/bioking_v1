@@ -24,17 +24,9 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     importanceGrades.find(g => g.id === article.grade) : 
     importanceGrades[0];
 
-  const getOpacityClass = () => {
-    if (article.grade === 'uninteresting') return 'opacity-60';
-    return '';
-  };
-
   return (
     <article 
-      className={cn(
-        "overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200",
-        getOpacityClass()
-      )}
+      className="overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200"
     >
       <div className="flex flex-col">
         <div className="flex gap-4 p-3">
@@ -48,7 +40,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                     size="sm"
                     variant={article.grade === grade.id ? "default" : "outline"}
                     className={cn(
-                      "text-xs h-6 px-2 py-0.5 min-w-0",
+                      "text-xs h-5 px-2 py-0 min-w-0",
                       article.grade === grade.id ? `${grade.color} flex items-center gap-1` : "border-gray-200"
                     )}
                     onClick={() => onGradeChange(article.id, grade.id)}
