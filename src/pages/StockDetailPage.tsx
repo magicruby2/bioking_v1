@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import StockSummary from '@/components/stocks/StockSummary';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Globe } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import N8nService from '@/services/n8nService';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,16 +20,6 @@ const StockDetailPage = () => {
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-  };
-  
-  const toggleLanguage = () => {
-    const newLanguage = language === 'en' ? 'ko' : 'en';
-    setLanguage(newLanguage);
-    
-    toast({
-      title: newLanguage === 'en' ? 'Language Changed' : '언어가 변경됨',
-      description: newLanguage === 'en' ? 'Switched to English' : '한국어로 전환됨',
-    });
   };
   
   useEffect(() => {
@@ -101,7 +91,7 @@ const StockDetailPage = () => {
           <div className="border-r border-border/40 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 pb-20">
-                <div className="flex justify-between items-center mb-4">
+                <div className="mb-4">
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -109,16 +99,6 @@ const StockDetailPage = () => {
                   >
                     <ArrowLeft className="mr-2 h-4 w-4" />
                     {texts[language].back}
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={toggleLanguage}
-                    className="flex items-center gap-1"
-                  >
-                    <Globe className="h-4 w-4" />
-                    {language === 'en' ? 'English' : '한국어'}
                   </Button>
                 </div>
                 

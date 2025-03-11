@@ -1,8 +1,9 @@
 
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, X, Crown } from 'lucide-react';
+import { Search, Moon, Sun, Menu, X, Crown, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -13,10 +14,22 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchActive, setSearchActive] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [language, setLanguage] = useState<'en' | 'ko'>('en');
+  const { toast } = useToast();
   
   const toggleDarkMode = () => {
     document.documentElement.classList.toggle('dark');
     setIsDarkMode(!isDarkMode);
+  };
+  
+  const toggleLanguage = () => {
+    const newLanguage = language === 'en' ? 'ko' : 'en';
+    setLanguage(newLanguage);
+    
+    toast({
+      title: newLanguage === 'en' ? 'Language Changed' : '언어가 변경됨',
+      description: newLanguage === 'en' ? 'Switched to English' : '한국어로 전환됨',
+    });
   };
   
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -120,6 +133,14 @@ export function Header({ toggleSidebar, isSidebarOpen }: HeaderProps) {
               <span className="sr-only">Search</span>
             </button>
           )}
+          
+          <button
+            onClick={toggleLanguage}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <Globe className="h-5 w-5" />
+            <span className="sr-only">Toggle language</span>
+          </button>
           
           <button
             onClick={toggleDarkMode}
