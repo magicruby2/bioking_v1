@@ -27,13 +27,13 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
   const getGradeGradient = (grade: string) => {
     switch (grade) {
       case 'critical':
-        return 'bg-gradient-to-r from-yellow-500 via-yellow-600 to-black';
+        return 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600'; // Most gold
       case 'important':
-        return 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-neutral-900';
+        return 'bg-gradient-to-r from-yellow-500 via-yellow-600 to-neutral-700'; // Gold to dark
       case 'useful':
-        return 'bg-gradient-to-r from-yellow-300 via-yellow-400 to-neutral-800';
+        return 'bg-gradient-to-r from-yellow-600 via-neutral-700 to-neutral-800'; // Darker
       case 'interesting':
-        return 'bg-gradient-to-r from-yellow-200 via-yellow-300 to-neutral-700';
+        return 'bg-gradient-to-r from-neutral-700 via-neutral-800 to-black'; // Closest to black
       default:
         return 'bg-secondary';
     }
