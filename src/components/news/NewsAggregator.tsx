@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
@@ -97,44 +98,51 @@ export function NewsAggregator() {
   
   return (
     <div className="h-full overflow-y-auto p-4 md:p-6">
-      <div className="mx-auto max-w-4xl">
-        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <h1 className="text-2xl font-bold">News Feed</h1>
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Left sidebar with filters */}
+        <div className="w-full md:w-64 space-y-6">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold mb-4">News Feed</h1>
+            <SearchBar 
+              searchQuery={searchQuery}
+              onSearchChange={handleSearchChange}
+            />
+          </div>
           
-          <SearchBar 
-            searchQuery={searchQuery}
-            onSearchChange={handleSearchChange}
-          />
+          <div className="space-y-6">
+            <CategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={handleCategorySelect}
+              onRefresh={fetchNewsData}
+              isLoading={isLoading}
+            />
+            
+            <Separator className="my-4" />
+            
+            <GradeFilter 
+              selectedGrade={selectedGrade}
+              onSelectGrade={handleGradeSelect}
+            />
+          </div>
         </div>
         
-        <CategoryFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={handleCategorySelect}
-          onRefresh={fetchNewsData}
-          isLoading={isLoading}
-        />
-        
-        <Separator className="my-4" />
-        
-        <GradeFilter 
-          selectedGrade={selectedGrade}
-          onSelectGrade={handleGradeSelect}
-        />
-        
-        {filteredArticles.length === 0 ? (
-          <NoArticlesFound />
-        ) : (
-          <div className="space-y-6">
-            {filteredArticles.map((article) => (
-              <ArticleCard 
-                key={article.id} 
-                article={article} 
-                onGradeChange={handleGradeChange}
-              />
-            ))}
-          </div>
-        )}
+        {/* Main content area with articles */}
+        <div className="flex-1">
+          {filteredArticles.length === 0 ? (
+            <NoArticlesFound />
+          ) : (
+            <div className="space-y-6">
+              {filteredArticles.map((article) => (
+                <ArticleCard 
+                  key={article.id} 
+                  article={article} 
+                  onGradeChange={handleGradeChange}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

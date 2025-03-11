@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Flag } from "lucide-react";
 import { importanceGrades } from "./types";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface GradeFilterProps {
   selectedGrade: string;
@@ -11,25 +10,27 @@ interface GradeFilterProps {
 
 const GradeFilter = ({ selectedGrade, onSelectGrade }: GradeFilterProps) => {
   return (
-    <div className="mb-6">
-      <div className="flex items-center mb-2">
+    <div className="space-y-3">
+      <div className="flex items-center">
         <Flag className="h-4 w-4 mr-2 text-muted-foreground" />
         <h3 className="text-sm font-medium">Filter by Importance</h3>
       </div>
       
-      <Tabs value={selectedGrade} onValueChange={onSelectGrade} className="w-full">
-        <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">
-          {importanceGrades.map((grade) => (
-            <TabsTrigger 
-              key={grade.id} 
-              value={grade.id}
-              className={`text-xs h-7 ${selectedGrade === grade.id ? grade.color.replace('bg-', 'bg-opacity-20 ') : ''}`}
-            >
-              {grade.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      <div className="flex flex-col space-y-1">
+        {importanceGrades.map((grade) => (
+          <button
+            key={grade.id}
+            onClick={() => onSelectGrade(grade.id)}
+            className={`text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              selectedGrade === grade.id
+                ? `${grade.color} text-white`
+                : 'hover:bg-secondary/80'
+            }`}
+          >
+            {grade.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };

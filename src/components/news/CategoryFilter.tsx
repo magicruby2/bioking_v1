@@ -18,28 +18,33 @@ export const CategoryFilter = ({
   isLoading
 }: CategoryFilterProps) => {
   return (
-    <div className="mb-6 flex items-center space-x-2 overflow-x-auto pb-2">
-      {categories.map((category) => (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium">Categories</h3>
         <button
-          key={category.id}
-          onClick={() => onSelectCategory(category.id)}
-          className={`inline-flex items-center justify-center rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            selectedCategory === category.id
-              ? 'bg-primary text-primary-foreground'
-              : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-          }`}
+          onClick={onRefresh}
+          className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/80"
         >
-          {category.name}
+          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <span className="sr-only">Refresh</span>
         </button>
-      ))}
+      </div>
       
-      <button
-        onClick={onRefresh}
-        className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/80 ml-2"
-      >
-        <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
-        <span className="sr-only">Refresh</span>
-      </button>
+      <div className="flex flex-col space-y-1">
+        {categories.map((category) => (
+          <button
+            key={category.id}
+            onClick={() => onSelectCategory(category.id)}
+            className={`text-left px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              selectedCategory === category.id
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-secondary/80'
+            }`}
+          >
+            {category.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
