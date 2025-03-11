@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import { useState } from "react";
-import { Trophy } from "lucide-react";
+import { Crown } from "lucide-react";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,7 +19,7 @@ const Index = () => {
           <div className="space-y-2 text-center md:text-left">
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight flex items-center justify-center md:justify-start">
               BIO
-              <Trophy 
+              <Crown 
                 className="h-8 w-8 text-yellow-500 mx-1 drop-shadow-sm filter" 
                 strokeWidth={1.5}
                 fill="rgba(234, 179, 8, 0.2)"
@@ -94,7 +94,7 @@ const Index = () => {
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
           <p className="text-sm text-muted-foreground">
             © 2023 BIO
-            <Trophy 
+            <Crown 
               className="h-4 w-4 text-yellow-500 inline mx-0.5 drop-shadow-sm" 
               strokeWidth={1.5}
               fill="rgba(234, 179, 8, 0.15)"
