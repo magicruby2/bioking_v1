@@ -1,7 +1,9 @@
 
-import { Clock, ExternalLink, Bookmark, Share2, Flag } from 'lucide-react';
+import { Clock, ExternalLink, Bookmark, Share2 } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface ArticleCardProps {
   article: NewsArticle;
@@ -9,6 +11,7 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
+  // Helper function to format the date in a readable format
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -18,25 +21,26 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     });
   };
 
-  // Get color for grade badge
-  const getGradeColor = () => {
-    if (!article.grade) return 'bg-secondary text-secondary-foreground';
-    const grade = importanceGrades.find(g => g.id === article.grade);
-    return grade ? grade.color : 'bg-secondary text-secondary-foreground';
-  };
+  // Find matching grade info
+  const gradeInfo = article.grade ? 
+    importanceGrades.find(g => g.id === article.grade) : 
+    importanceGrades[0];
 
-  // Handle grade change
-  const handleGradeChange = (grade: string) => {
-    if (onGradeChange) {
-      onGradeChange(article.id, grade);
-    }
+  // Get opacity based on article grade
+  const getOpacityClass = () => {
+    if (article.grade === 'uninteresting') return 'opacity-60';
+    return '';
   };
 
   return (
     <article 
-      className={`overflow-hidden rounded-xl border border-border/40 bg-card transition-all duration-200 hover:shadow-md animate-fade-in ${article.grade === 'uninteresting' ? 'opacity-60' : ''}`}
+      className={cn(
+        "overflow-hidden rounded-xl border border-border/40 bg-card transition-all duration-200 hover:shadow-md animate-fade-in",
+        getOpacityClass()
+      )}
     >
       <div className="flex flex-col md:flex-row">
+        {/* Image section - only rendered if imageUrl exists */}
         {article.imageUrl && (
           <div className="h-48 w-full md:h-auto md:w-1/3">
             <img
@@ -47,20 +51,23 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
           </div>
         )}
         
+        {/* Content section - adapts width based on image presence */}
         <div className={`flex flex-col p-4 ${article.imageUrl ? 'md:w-2/3' : 'w-full'}`}>
+          {/* Top row with category, grade badge and action buttons */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
                 {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
               </span>
               
-              {article.grade && (
-                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getGradeColor()}`}>
-                  <Flag className="h-3 w-3 mr-1" />
-                  {article.grade.charAt(0).toUpperCase() + article.grade.slice(1)}
+              {/* Grade badge */}
+              {article.grade && gradeInfo && (
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${gradeInfo.color}`}>
+                  {gradeInfo.name}
                 </span>
               )}
             </div>
+            
             <div className="flex items-center space-x-2">
               <button
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -77,6 +84,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
             </div>
           </div>
           
+          {/* Article title - clickable, navigates to article detail */}
           <h2 className="mt-2 text-xl font-bold leading-tight">
             <Link 
               to={`/article/${article.id}`} 
@@ -90,45 +98,26 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
             </Link>
           </h2>
           
+          {/* Article summary */}
           <p className="mt-2 flex-1 text-sm text-muted-foreground">
             {article.summary}
           </p>
           
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex items-center text-xs text-muted-foreground">
-              <span className="font-medium text-foreground">{article.source}</span>
-              <span className="mx-2">•</span>
-              <span>{formatDate(article.publishedAt)}</span>
-              <span className="mx-2">•</span>
-              <span className="flex items-center">
-                <Clock className="mr-1 h-3 w-3" />
-                {article.readTime} min read
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              {onGradeChange && (
-                <div className="relative group">
-                  <button className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-secondary">
-                    <Flag className="h-3 w-3 mr-1" />
-                    Grade
-                  </button>
-                  <div className="absolute right-0 mt-1 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-card shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                    <div className="py-1">
-                      {importanceGrades.slice(1).map((grade) => (
-                        <button 
-                          key={grade.id}
-                          className={`block w-full px-4 py-2 text-left text-sm hover:bg-secondary ${article.grade === grade.id ? 'font-bold' : ''}`}
-                          onClick={() => handleGradeChange(grade.id)}
-                        >
-                          <span className={`inline-block w-2 h-2 rounded-full mr-2 ${grade.color.split(' ')[0]}`}></span>
-                          {grade.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
+          {/* Footer with metadata, grade buttons and read more link */}
+          <div className="mt-4 flex flex-col space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">{article.source}</span>
+                <span className="mx-2">•</span>
+                <span>{formatDate(article.publishedAt)}</span>
+                <span className="mx-2">•</span>
+                <span className="flex items-center">
+                  <Clock className="mr-1 h-3 w-3" />
+                  {article.readTime} min read
+                </span>
+              </div>
+              
+              {/* Read more link */}
               <Link
                 to={`/article/${article.id}`}
                 className="inline-flex items-center rounded-md px-3 py-1 text-xs font-medium text-primary hover:underline"
@@ -137,6 +126,26 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                 <ExternalLink className="ml-1 h-3 w-3" />
               </Link>
             </div>
+            
+            {/* Grade buttons */}
+            {onGradeChange && (
+              <div className="flex flex-wrap gap-1 mt-2">
+                {importanceGrades.slice(1).map((grade) => (
+                  <Button
+                    key={grade.id}
+                    size="sm"
+                    variant={article.grade === grade.id ? "default" : "outline"}
+                    className={cn(
+                      "text-xs px-2 py-0 h-7",
+                      article.grade === grade.id ? grade.color : ""
+                    )}
+                    onClick={() => onGradeChange(article.id, grade.id)}
+                  >
+                    {grade.name}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

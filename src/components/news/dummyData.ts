@@ -1,4 +1,3 @@
-
 import { NewsArticle } from './types';
 
 export const dummyNewsData: NewsArticle[] = [
@@ -12,6 +11,7 @@ export const dummyNewsData: NewsArticle[] = [
     imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae',
     category: 'pharmaceutical',
     readTime: 4,
+    grade: 'critical',
     content: `
 # Eli Lilly Announces Breakthrough in Diabetes Treatment
 
@@ -52,6 +52,7 @@ The diabetes treatment market is estimated to reach $78 billion globally by 2026
     imageUrl: 'https://images.unsplash.com/photo-1576671414121-aa7c5aeb2469',
     category: 'pharmaceutical',
     readTime: 5,
+    grade: 'important',
     content: `
 # Novartis Secures FDA Approval for Novel Cancer Therapy
 
@@ -104,6 +105,7 @@ The treatment is expected to be available at certified treatment centers within 
     imageUrl: 'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69',
     category: 'pharmaceutical',
     readTime: 6,
+    grade: 'useful',
     content: `
 # Pfizer Invests $500M in mRNA Research Facilities
 
@@ -155,6 +157,7 @@ Pfizer's stock rose 2.7% following the announcement.
     imageUrl: 'https://images.unsplash.com/photo-1579165466741-7f35e4755182',
     category: 'pharmaceutical',
     readTime: 3,
+    grade: 'important',
     content: `
 # Merck's Keytruda Shows Promise for New Cancer Indications
 
@@ -201,6 +204,7 @@ For patients with these cancer types, the potential approval of Keytruda offers 
     imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b',
     category: 'pharmaceutical',
     readTime: 7,
+    grade: 'useful',
     content: `
 # AstraZeneca Partners with AI Firm to Accelerate Drug Discovery
 
@@ -250,6 +254,7 @@ This partnership reflects a growing trend in the pharmaceutical industry, with m
     imageUrl: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f',
     category: 'regulatory',
     readTime: 5,
+    grade: 'interesting',
     content: `
 # Johnson & Johnson Facing New Litigation Over Medical Device
 
@@ -301,6 +306,7 @@ Johnson & Johnson has continued selling the device while the litigation proceeds
     imageUrl: 'https://images.unsplash.com/photo-1530305408560-82d13781b33a',
     category: 'pharmaceutical',
     readTime: 4,
+    grade: 'interesting',
     content: `
 # Novo Nordisk Expanding Production Capacity for GLP-1 Medications
 
@@ -361,6 +367,7 @@ Novo Nordisk expects supply constraints to begin easing by Q2 2024, with full re
     imageUrl: 'https://images.unsplash.com/photo-1585435557343-3b092031a831',
     category: 'regulatory',
     readTime: 6,
+    grade: 'uninteresting',
     content: `
 # Generic Drug Makers Challenge Patent Protection for Blockbuster Treatment
 
