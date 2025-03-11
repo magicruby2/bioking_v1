@@ -10,6 +10,7 @@ export interface NewsArticle {
   category: string;
   readTime: number;
   content?: string; // Added content field
+  grade?: 'critical' | 'important' | 'useful' | 'interesting' | 'uninteresting'; // News importance grade
 }
 
 export interface Category {
@@ -25,4 +26,14 @@ export const categories: Category[] = [
   { id: 'finance', name: 'Finance' },
   { id: 'business', name: 'Business' },
   { id: 'general', name: 'General' },
+];
+
+// Importance grades for news articles
+export const importanceGrades = [
+  { id: 'all', name: 'All Grades', color: 'bg-secondary text-secondary-foreground' },
+  { id: 'critical', name: 'Critical', color: 'bg-red-500 text-white' },
+  { id: 'important', name: 'Important', color: 'bg-orange-500 text-white' },
+  { id: 'useful', name: 'Useful', color: 'bg-blue-500 text-white' },
+  { id: 'interesting', name: 'Interesting', color: 'bg-green-500 text-white' },
+  { id: 'uninteresting', name: 'Uninteresting', color: 'bg-gray-400 text-white' },
 ];

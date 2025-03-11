@@ -1,13 +1,14 @@
 
-import { Clock, ExternalLink, Bookmark, Share2 } from 'lucide-react';
-import { NewsArticle } from './types';
+import { Clock, ExternalLink, Bookmark, Share2, Flag } from 'lucide-react';
+import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
 
 interface ArticleCardProps {
   article: NewsArticle;
+  onGradeChange?: (articleId: string, grade: string) => void;
 }
 
-export const ArticleCard = ({ article }: ArticleCardProps) => {
+export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -17,9 +18,23 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
     });
   };
 
+  // Get color for grade badge
+  const getGradeColor = () => {
+    if (!article.grade) return 'bg-secondary text-secondary-foreground';
+    const grade = importanceGrades.find(g => g.id === article.grade);
+    return grade ? grade.color : 'bg-secondary text-secondary-foreground';
+  };
+
+  // Handle grade change
+  const handleGradeChange = (grade: string) => {
+    if (onGradeChange) {
+      onGradeChange(article.id, grade);
+    }
+  };
+
   return (
     <article 
-      className="overflow-hidden rounded-xl border border-border/40 bg-card transition-all duration-200 hover:shadow-md animate-fade-in"
+      className={`overflow-hidden rounded-xl border border-border/40 bg-card transition-all duration-200 hover:shadow-md animate-fade-in ${article.grade === 'uninteresting' ? 'opacity-60' : ''}`}
     >
       <div className="flex flex-col md:flex-row">
         {article.imageUrl && (
@@ -34,9 +49,18 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
         
         <div className={`flex flex-col p-4 ${article.imageUrl ? 'md:w-2/3' : 'w-full'}`}>
           <div className="flex items-center justify-between">
-            <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-              {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="inline-flex items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
+              </span>
+              
+              {article.grade && (
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getGradeColor()}`}>
+                  <Flag className="h-3 w-3 mr-1" />
+                  {article.grade.charAt(0).toUpperCase() + article.grade.slice(1)}
+                </span>
+              )}
+            </div>
             <div className="flex items-center space-x-2">
               <button
                 className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -82,13 +106,37 @@ export const ArticleCard = ({ article }: ArticleCardProps) => {
               </span>
             </div>
             
-            <Link
-              to={`/article/${article.id}`}
-              className="inline-flex items-center rounded-md px-3 py-1 text-xs font-medium text-primary hover:underline"
-            >
-              Read more
-              <ExternalLink className="ml-1 h-3 w-3" />
-            </Link>
+            <div className="flex items-center gap-2">
+              {onGradeChange && (
+                <div className="relative group">
+                  <button className="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-secondary">
+                    <Flag className="h-3 w-3 mr-1" />
+                    Grade
+                  </button>
+                  <div className="absolute right-0 mt-1 w-40 origin-top-right divide-y divide-gray-100 rounded-md bg-card shadow-lg ring-1 ring-black ring-opacity-5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                    <div className="py-1">
+                      {importanceGrades.slice(1).map((grade) => (
+                        <button 
+                          key={grade.id}
+                          className={`block w-full px-4 py-2 text-left text-sm hover:bg-secondary ${article.grade === grade.id ? 'font-bold' : ''}`}
+                          onClick={() => handleGradeChange(grade.id)}
+                        >
+                          <span className={`inline-block w-2 h-2 rounded-full mr-2 ${grade.color.split(' ')[0]}`}></span>
+                          {grade.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              <Link
+                to={`/article/${article.id}`}
+                className="inline-flex items-center rounded-md px-3 py-1 text-xs font-medium text-primary hover:underline"
+              >
+                Read more
+                <ExternalLink className="ml-1 h-3 w-3" />
+              </Link>
+            </div>
           </div>
         </div>
       </div>

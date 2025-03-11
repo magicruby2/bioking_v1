@@ -8,12 +8,15 @@ import ArticleCard from './ArticleCard';
 import CategoryFilter from './CategoryFilter';
 import SearchBar from './SearchBar';
 import NoArticlesFound from './NoArticlesFound';
+import GradeFilter from './GradeFilter';
+import { Separator } from '@/components/ui/separator';
 
 export function NewsAggregator() {
   const { toast } = useToast();
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsData);
   const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsData);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -56,6 +59,10 @@ export function NewsAggregator() {
       filtered = filtered.filter(article => article.category === selectedCategory);
     }
     
+    if (selectedGrade !== 'all') {
+      filtered = filtered.filter(article => article.grade === selectedGrade);
+    }
+    
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -66,14 +73,33 @@ export function NewsAggregator() {
     }
     
     setFilteredArticles(filtered);
-  }, [newsArticles, selectedCategory, searchQuery]);
+  }, [newsArticles, selectedCategory, selectedGrade, searchQuery]);
   
   const handleCategorySelect = (categoryId: string) => {
     setSelectedCategory(categoryId);
   };
   
+  const handleGradeSelect = (gradeId: string) => {
+    setSelectedGrade(gradeId);
+  };
+  
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
+  };
+  
+  const handleGradeChange = (articleId: string, grade: string) => {
+    // Update the grade of the article
+    const updatedArticles = newsArticles.map(article => 
+      article.id === articleId ? { ...article, grade } : article
+    );
+    
+    setNewsArticles(updatedArticles);
+    
+    // Show toast notification
+    toast({
+      title: "Article Graded",
+      description: `Article marked as "${grade.charAt(0).toUpperCase() + grade.slice(1)}"`,
+    });
   };
   
   return (
@@ -96,12 +122,23 @@ export function NewsAggregator() {
           isLoading={isLoading}
         />
         
+        <Separator className="my-4" />
+        
+        <GradeFilter 
+          selectedGrade={selectedGrade}
+          onSelectGrade={handleGradeSelect}
+        />
+        
         {filteredArticles.length === 0 ? (
           <NoArticlesFound />
         ) : (
           <div className="space-y-6">
             {filteredArticles.map((article) => (
-              <ArticleCard key={article.id} article={article} />
+              <ArticleCard 
+                key={article.id} 
+                article={article} 
+                onGradeChange={handleGradeChange}
+              />
             ))}
           </div>
         )}
