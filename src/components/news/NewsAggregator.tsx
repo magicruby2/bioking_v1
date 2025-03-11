@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { N8nService } from '@/services/n8nService';
 import { useToast } from "@/hooks/use-toast";
 import { NewsArticle, categories } from './types';
-import { dummyNewsData } from './dummyData';
+import { dummyNewsArticles } from './dummyData';
 import ArticleCard from './ArticleCard';
 import CategoryFilter from './CategoryFilter';
 import SearchBar from './SearchBar';
@@ -13,8 +12,8 @@ import { Separator } from '@/components/ui/separator';
 
 export function NewsAggregator() {
   const { toast } = useToast();
-  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsData);
-  const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsData);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(dummyNewsArticles);
+  const [filteredArticles, setFilteredArticles] = useState<NewsArticle[]>(dummyNewsArticles);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedGrade, setSelectedGrade] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,10 +26,8 @@ export function NewsAggregator() {
       const response = await N8nService.fetchNewsData(selectedCategory, 10);
       
       if (response.success && response.data) {
-        // In a real implementation, we'd use the actual data from the n8n webhook
         console.log('Received news data:', response.data);
-        // For now we'll use our dummy data
-        setNewsArticles(dummyNewsData);
+        setNewsArticles(dummyNewsArticles);
       } else {
         throw new Error(response.error || 'Failed to fetch news data');
       }
@@ -41,8 +38,6 @@ export function NewsAggregator() {
         description: "Failed to fetch news data. Using sample data instead.",
         variant: "destructive",
       });
-      // Keep the current data in case of error
-    } finally {
       setIsLoading(false);
     }
   };
@@ -88,14 +83,12 @@ export function NewsAggregator() {
   };
   
   const handleGradeChange = (articleId: string, grade: string) => {
-    // Update the grade of the article
     const updatedArticles = newsArticles.map(article => 
       article.id === articleId ? { ...article, grade: grade as NewsArticle['grade'] } : article
     );
     
     setNewsArticles(updatedArticles);
     
-    // Show toast notification
     toast({
       title: "Article Graded",
       description: `Article marked as "${grade.charAt(0).toUpperCase() + grade.slice(1)}"`,

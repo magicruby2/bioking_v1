@@ -2,7 +2,7 @@
 import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { NewsArticle } from '@/components/news/types';
-import { dummyNewsData } from '@/components/news/dummyData';
+import { dummyNewsArticles } from '@/components/news/dummyData';
 import ArticleContent from '@/components/news/ArticleContent';
 import Header from '@/components/layout/Header';
 import NoArticlesFound from '@/components/news/NoArticlesFound';
@@ -21,7 +21,7 @@ const ArticlePage = () => {
     setIsLoading(true);
     // In a real app, we would fetch the article from an API
     // For now, we'll use our dummy data
-    const foundArticle = dummyNewsData.find(a => a.id === id) || null;
+    const foundArticle = dummyNewsArticles.find(a => a.id === id) || null;
     setArticle(foundArticle);
     setIsLoading(false);
   }, [id]);
