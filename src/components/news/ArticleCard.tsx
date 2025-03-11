@@ -1,4 +1,3 @@
-
 import { Clock, ExternalLink, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
@@ -27,13 +26,13 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
   const getGradeGradient = (grade: string) => {
     switch (grade) {
       case 'critical':
-        return 'bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600'; // Most gold
+        return 'bg-gradient-to-r from-yellow-300 to-yellow-500'; // Pure gold gradient
       case 'important':
-        return 'bg-gradient-to-r from-yellow-500 via-yellow-600 to-neutral-700'; // Gold to dark
+        return 'bg-gradient-to-r from-amber-500 to-orange-600'; // Amber-orange gradient
       case 'useful':
-        return 'bg-gradient-to-r from-yellow-600 via-neutral-700 to-neutral-800'; // Darker
+        return 'bg-gradient-to-r from-stone-500 to-stone-700'; // Stone/bronze gradient
       case 'interesting':
-        return 'bg-gradient-to-r from-neutral-700 via-neutral-800 to-black'; // Closest to black
+        return 'bg-gradient-to-r from-neutral-700 to-black'; // Near black gradient
       default:
         return 'bg-secondary';
     }
