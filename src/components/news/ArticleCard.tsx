@@ -1,4 +1,3 @@
-
 import { Clock, ExternalLink, Bookmark, Share2, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
@@ -11,7 +10,6 @@ interface ArticleCardProps {
 }
 
 export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
-  // Helper function to format the date in a readable format
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { 
@@ -21,12 +19,10 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     });
   };
 
-  // Find matching grade info
   const gradeInfo = article.grade ? 
     importanceGrades.find(g => g.id === article.grade) : 
     importanceGrades[0];
 
-  // Get opacity based on article grade
   const getOpacityClass = () => {
     if (article.grade === 'uninteresting') return 'opacity-60';
     return '';
@@ -35,14 +31,13 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
   return (
     <article 
       className={cn(
-        "overflow-hidden rounded-xl border border-border/40 bg-card transition-all duration-200 hover:shadow-md animate-fade-in",
+        "overflow-hidden rounded-lg border border-border/40 bg-card shadow-sm hover:shadow-md transition-all duration-200",
         getOpacityClass()
       )}
     >
-      <div className="flex flex-col md:flex-row">
-        {/* Image section - only rendered if imageUrl exists */}
+      <div className="flex gap-4">
         {article.imageUrl && (
-          <div className="h-40 w-full md:h-auto md:w-1/3">
+          <div className="w-32 h-32">
             <img
               src={article.imageUrl}
               alt={article.title}
@@ -51,97 +46,82 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
           </div>
         )}
         
-        {/* Content section - adapts width based on image presence */}
-        <div className={`flex flex-col p-3 ${article.imageUrl ? 'md:w-2/3' : 'w-full'}`}>
-          {/* Top row with category, grade badge and action buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="inline-flex items-center rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+        <div className="flex-1 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
                 {article.category.charAt(0).toUpperCase() + article.category.slice(1)}
               </span>
               
-              {/* Grade badge */}
               {article.grade && gradeInfo && (
-                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${gradeInfo.color}`}>
+                <span className={cn("text-xs font-medium px-2 py-0.5 rounded-full", gradeInfo.color)}>
                   {gradeInfo.name}
                 </span>
               )}
             </div>
             
-            <div className="flex items-center space-x-1">
-              <button
-                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              >
-                <Bookmark className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-1">
+              <button className="h-6 w-6 rounded-md hover:bg-secondary flex items-center justify-center">
+                <Bookmark className="h-3 w-3" />
                 <span className="sr-only">Save article</span>
               </button>
-              <button
-                className="inline-flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-              >
-                <Share2 className="h-3.5 w-3.5" />
+              <button className="h-6 w-6 rounded-md hover:bg-secondary flex items-center justify-center">
+                <Share2 className="h-3 w-3" />
                 <span className="sr-only">Share article</span>
               </button>
             </div>
           </div>
           
-          {/* Article title - clickable, navigates to article detail */}
-          <h2 className="mt-1.5 text-lg font-bold leading-tight">
+          <h2 className="text-base font-semibold leading-tight mb-1">
             <Link 
               to={`/article/${article.id}`} 
               className="hover:text-primary hover:underline"
-              onClick={(e) => {
-                // Ensure the event propagates correctly
-                e.stopPropagation();
-              }}
+              onClick={(e) => e.stopPropagation()}
             >
               {article.title}
             </Link>
           </h2>
           
-          {/* Article summary */}
-          <p className="mt-1.5 flex-1 text-xs text-muted-foreground line-clamp-2">
+          <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
             {article.summary}
           </p>
           
-          {/* Footer with metadata, grade buttons and read more link */}
-          <div className="mt-2 flex flex-col space-y-1.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center text-xs text-muted-foreground">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
                 <span className="font-medium text-foreground">{article.source}</span>
-                <span className="mx-1.5">•</span>
+                <span>•</span>
                 <span>{formatDate(article.publishedAt)}</span>
-                <span className="mx-1.5">•</span>
+                <span>•</span>
                 <span className="flex items-center">
-                  <Clock className="mr-1 h-3 w-3" />
+                  <Clock className="h-3 w-3 mr-1" />
                   {article.readTime} min read
                 </span>
               </div>
               
-              {/* Read more link */}
               <Link
                 to={`/article/${article.id}`}
-                className="inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium text-primary hover:underline"
+                className="text-xs font-medium text-primary hover:underline flex items-center"
               >
                 Read more
-                <ExternalLink className="ml-1 h-3 w-3" />
+                <ExternalLink className="h-3 w-3 ml-1" />
               </Link>
             </div>
             
-            {/* Compact grade buttons */}
             {onGradeChange && (
-              <div className="flex flex-wrap gap-1 mt-1">
+              <div className="flex flex-wrap gap-1">
                 {importanceGrades.slice(1).map((grade) => (
                   <Button
                     key={grade.id}
                     size="sm"
                     variant={article.grade === grade.id ? "default" : "outline"}
                     className={cn(
-                      "text-xs h-5 px-1.5 py-0 min-w-0",
+                      "text-[10px] h-4 px-1.5 py-0 min-w-0",
                       article.grade === grade.id ? `${grade.color} flex items-center gap-0.5` : "border-gray-200"
                     )}
                     onClick={() => onGradeChange(article.id, grade.id)}
                   >
-                    {article.grade === grade.id && <Check className="h-2.5 w-2.5" />}
+                    {article.grade === grade.id && <Check className="h-2 w-2" />}
                     <span>{grade.name}</span>
                   </Button>
                 ))}
