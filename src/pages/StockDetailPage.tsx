@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import StockSummary from '@/components/stocks/StockSummary';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import N8nService from '@/services/n8nService';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -13,12 +13,23 @@ import { getStockSummary } from '@/components/stocks/stockSummaryData';
 const StockDetailPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [language, setLanguage] = useState<'en' | 'ko'>('en');
   const { symbol } = useParams<{ symbol: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+  
+  const toggleLanguage = () => {
+    const newLanguage = language === 'en' ? 'ko' : 'en';
+    setLanguage(newLanguage);
+    
+    toast({
+      title: newLanguage === 'en' ? 'Language Changed' : '언어가 변경됨',
+      description: newLanguage === 'en' ? 'Switched to English' : '한국어로 전환됨',
+    });
   };
   
   useEffect(() => {
@@ -68,6 +79,18 @@ const StockDetailPage = () => {
   // Get stock data for analysis display
   const stockData = getStockSummary(symbol || 'AAPL');
   
+  // Language-specific content
+  const texts = {
+    en: {
+      back: 'Back to Stocks',
+      analysis: 'Analysis',
+    },
+    ko: {
+      back: '주식 목록으로 돌아가기',
+      analysis: '분석',
+    }
+  };
+  
   return (
     <div className="flex h-screen flex-col">
       <Header toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
@@ -78,15 +101,26 @@ const StockDetailPage = () => {
           <div className="border-r border-border/40 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-6 pb-20">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleBack}
-                  className="mb-4"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Stocks
-                </Button>
+                <div className="flex justify-between items-center mb-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleBack}
+                  >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    {texts[language].back}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleLanguage}
+                    className="flex items-center gap-1"
+                  >
+                    <Globe className="h-4 w-4" />
+                    {language === 'en' ? 'English' : '한국어'}
+                  </Button>
+                </div>
                 
                 <StockSummary symbol={symbol || 'AAPL'} loading={loading} />
               </div>
@@ -99,7 +133,7 @@ const StockDetailPage = () => {
               <div className="p-6 pb-20">
                 <div className="prose prose-sm dark:prose-invert max-w-none">
                   <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent mb-4">
-                    Analysis: {stockData.name} ({stockData.symbol})
+                    {texts[language].analysis}: {stockData.name} ({stockData.symbol})
                   </h1>
                   <div className="rounded-lg border border-border/40 bg-card p-6 markdown-content" 
                     dangerouslySetInnerHTML={{ __html: markdownToHtml(stockData.description) }} 
