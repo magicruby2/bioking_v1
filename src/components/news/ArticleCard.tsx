@@ -1,3 +1,4 @@
+
 import { Clock, ExternalLink, Check } from 'lucide-react';
 import { NewsArticle, importanceGrades } from './types';
 import { Link } from 'react-router-dom';
@@ -23,16 +24,16 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
     importanceGrades.find(g => g.id === article.grade) : 
     importanceGrades[0];
 
-  const getGradeGradient = (grade: string) => {
+  const getGradeColor = (grade: string) => {
     switch (grade) {
       case 'critical':
-        return 'bg-gradient-to-r from-yellow-300 to-yellow-500'; // Pure gold gradient
+        return 'bg-rose-600'; // Ruby color
       case 'important':
-        return 'bg-gradient-to-r from-amber-500 to-orange-600'; // Amber-orange gradient
+        return 'bg-amber-500'; // Amber-orange
       case 'useful':
-        return 'bg-gradient-to-r from-stone-500 to-stone-700'; // Stone/bronze gradient
+        return 'bg-yellow-400'; // Pure gold
       case 'interesting':
-        return 'bg-gradient-to-r from-neutral-700 to-black'; // Near black gradient
+        return 'bg-neutral-400'; // Diamond grey
       default:
         return 'bg-secondary';
     }
@@ -99,7 +100,7 @@ export const ArticleCard = ({ article, onGradeChange }: ArticleCardProps) => {
                     className={cn(
                       "text-xs h-5 px-2 py-0 min-w-0",
                       article.grade === grade.id ? 
-                        `${getGradeGradient(grade.id)} text-white flex items-center gap-1` : 
+                        `${getGradeColor(grade.id)} text-white flex items-center gap-1` : 
                         "border-gray-200"
                     )}
                     onClick={() => onGradeChange(article.id, grade.id)}
