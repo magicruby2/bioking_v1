@@ -52,7 +52,7 @@ services:
     restart: unless-stopped
 
   supabase:
-    image: supabase/supabase-postgres:latest
+    image: supabase/postgres:15.1.0.73
     ports:
       - "5433:5432"
     environment:
