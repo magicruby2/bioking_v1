@@ -6,10 +6,7 @@ interface WebhookResponse {
 
 export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks';
 
-// Use environment-based URL or fallback to the public one
-const N8N_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'http://n8n:5678'  // Docker internal network address
-  : 'https://naldu.app.n8n.cloud';  // External URL for development
+const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
 
 /**
  * Service for handling n8n webhook integrations
