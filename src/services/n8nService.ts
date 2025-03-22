@@ -6,7 +6,8 @@ interface WebhookResponse {
 
 export type WebhookType = 'chat' | 'research' | 'report' | 'stocks' | 'news' | 'stocksOverview' | 'trendingStocks';
 
-const N8N_BASE_URL = 'https://naldu.app.n8n.cloud';
+// Use the frontend server URL instead of direct n8n connection
+const N8N_BASE_URL = 'http://localhost:8080';
 
 /**
  * Service for handling n8n webhook integrations
@@ -28,7 +29,7 @@ export class N8nService {
    */
   private getWebhookUrl(type: WebhookType): string {
     const endpoints = {
-      chat: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb',
+      chat: 'webhook-test/661d3919-a57f-4c5a-8491-359120f8165b',
       research: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
       report: 'webhook/a74ca145-c884-4c43-8794-7b70ed9e34fb', // Use same endpoint for now
       stocks: 'webhook-test/2', 

@@ -1,8 +1,7 @@
-
 version: '3.8'
 
 services:
-  app:
+  frontend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -12,4 +11,36 @@ services:
       - ./src:/app/src
     environment:
       - NODE_ENV=production
+    networks:
+      - our_net
     restart: unless-stopped
+
+  n8n:
+    image: n8nio/n8n
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - N8N_USER_MANAGEMENT_DISABLED=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_EMAIL_MODE=smtp
+      - N8N_SMTP_HOST=smtp.gmail.com
+      - N8N_SMTP_PORT=587
+      - N8N_SMTP_USER=${N8N_SMTP_USER}
+      - N8N_SMTP_PASS=${N8N_SMTP_PASS}
+      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER}
+      - N8N_SMTP_REPLY_TO=${N8N_SMTP_REPLY_TO}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - our_net
+    restart: unless-stopped
+
+networks:
+  our_net:
+    external: true
+
+volumes:
+  n8n_data:
